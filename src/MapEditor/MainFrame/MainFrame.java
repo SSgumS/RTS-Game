@@ -1,5 +1,6 @@
 package MapEditor.MainFrame;
 
+import MapEditor.Cursor.Cursors;
 import MapEditor.GamePanel.GamePanel;
 
 import javax.swing.*;
@@ -16,6 +17,8 @@ public class MainFrame extends JFrame {
         super(title);
 
         setLookAndFeel();
+        new Cursors();
+        setCursor(Cursors.main);
 
         setExtendedState(MAXIMIZED_BOTH);
         setResizable(false);

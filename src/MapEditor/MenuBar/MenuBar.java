@@ -1,6 +1,7 @@
 package MapEditor.MenuBar;
 
-import MapEditor.MainFrame.MainFrame;
+import MapEditor.Button.Button;
+import MapEditor.MenuBar.EditorButtons.EditorButtons;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,7 +16,8 @@ import java.io.IOException;
 public class MenuBar extends JPanel {
 
     private BufferedImage image;
-    private JButton menuButton;
+    private EditorButtons editorButtons;
+    private Button menuButton;
 
     public MenuBar(LayoutManager layout) {
         super(layout);
@@ -29,13 +31,20 @@ public class MenuBar extends JPanel {
         setSize(image.getWidth(), image.getHeight());
         setLocation(0, 0);
 
+        addEditorButtons();
         addMenuButton();
     }
 
+    private void addEditorButtons() {
+        editorButtons = new EditorButtons(null);
+        editorButtons.setSize(getWidth()/2, getHeight());
+        editorButtons.setLocation(0, 0);
+        add(editorButtons);
+    }
+
     private void addMenuButton() {
-        menuButton = new JButton("Menu");
-        menuButton.setSize(100, getHeight() - 10);
-        menuButton.setLocation(getWidth() - 10 - menuButton.getWidth(), 5);
+        menuButton = new Button("Menu");
+        menuButton.setLocation(getWidth() - 10 - menuButton.getWidth(), 3);
         add(menuButton);
     }
 
