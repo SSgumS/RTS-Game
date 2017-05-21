@@ -21,6 +21,7 @@ public class MenuBar extends JPanel {
 
     public MenuBar(LayoutManager layout) {
         super(layout);
+        setOpaque(false);
 
         try {
             image = ImageIO.read(new File("resources\\images\\ui\\menu bar\\map editor\\menu bar.png"));
@@ -29,7 +30,6 @@ public class MenuBar extends JPanel {
         }
 
         setSize(image.getWidth(), image.getHeight());
-        setLocation(0, 0);
 
         addEditorButtons();
         addMenuButton();
@@ -53,7 +53,7 @@ public class MenuBar extends JPanel {
         Graphics g = dbImage.getGraphics();
 
         g.drawImage(image, 0, 0, null);
-        paintComponents(g);
+        paintAll(g);
 
         return dbImage;
     }

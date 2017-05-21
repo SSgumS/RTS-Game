@@ -29,7 +29,9 @@ public class MainFrame extends JFrame {
         width = getWidth();
         height = getHeight();
 
-        setContentPane(new GamePanel(null));
+        setContentPane(new BackPanel(new BorderLayout()));
+//        getContentPane().add(new BackPanel());
+        getContentPane().add(new GamePanel(null));
 
         setVisible(true);
     }

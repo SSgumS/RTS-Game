@@ -1,5 +1,6 @@
 package MapEditor.GamePanel;
 
+import MapEditor.Addresses.Addresses;
 import MapEditor.HUD.HUD;
 import MapEditor.MainFrame.MainFrame;
 import MapEditor.MenuBar.MenuBar;
@@ -18,12 +19,14 @@ public class GamePanel extends JPanel {
     private HUD hud;
 
     private Timer repaint = new Timer(16, e -> {
-        render();
-        paint();
+//        render();
+//        paint();
+        repaint();
     });
 
     public GamePanel(LayoutManager layout) {
         super(layout);
+        setOpaque(false);
         setSize(MainFrame.width, MainFrame.height);
         setLocation(0, 0);
 
@@ -40,6 +43,7 @@ public class GamePanel extends JPanel {
 
     private void addHUD() {
         hud = new HUD(null);
+        Addresses.hud = hud;
         add(hud);
     }
 
@@ -56,6 +60,7 @@ public class GamePanel extends JPanel {
         Graphics g = getGraphics();
 
         g.drawImage(dbImage, 0, 0, null);
+        paintComponents(g);
 
         g.dispose();
     }

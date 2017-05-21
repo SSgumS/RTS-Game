@@ -22,4 +22,14 @@ public class Button extends JButton {
         setForeground(new Color(255, 247, 153));
     }
 
+    public void swapIcons() {
+        if (getIcon().equals(icon)) {
+            setIcon(pressedIcon);
+            setPressedIcon(icon);
+        } else {
+            setIcon(icon);
+            setPressedIcon(pressedIcon);
+        }
+    }
+
 }
