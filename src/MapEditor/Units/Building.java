@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public enum Building {
 
-    Town("Town", "resources\\images\\town");
+    Town("Town", "resources\\images\\town\\town");
 
     private String name;
     public BufferedImage[] images;
