@@ -38,7 +38,7 @@ public class Map extends JPanel {
         label.setLocation(10, getHeight()/4 + 10);
         add(label);
 
-        JComboBox <String> terrains = new JComboBox<>(new String[]{"Deep Water", "Dessert", "Dirt", "Dirt - Snow", "Grass", "Grass - Snow", "Ice", "Snow", "Water"});
+        JComboBox <String> terrains = new JComboBox<>(new String[]{"Deep Water", "Dessert", "Dirt", "Dirt-Snow", "Grass", "Grass-Snow", "Ice", "Snow", "Water"});
         terrains.setSelectedIndex(4);
         terrains.setSize(getWidth()/2 - 10, getHeight()/4 - 20);
         terrains.setLocation(label.getX() + label.getWidth() + 10, getHeight()/4 + 10);
