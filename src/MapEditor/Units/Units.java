@@ -11,9 +11,9 @@ import java.io.IOException;
 public enum Units {
 
     Boat("Boat", "resources\\images\\boat\\editor"),
-    Ship("Ship", "resources\\images\\fish\\ship\\ship\\editor"),
-    Soldier("Soldier", "resources\\images\\fish\\soldier\\editor"),
-    Worker("Worker", "resources\\images\\tree\\worker\\editor");
+    Ship("Ship", "resources\\images\\ship\\editor"),
+    Soldier("Soldier", "resources\\images\\soldier\\editor"),
+    Worker("Worker", "resources\\images\\worker\\editor");
 
     private String name;
     public BufferedImage[] images;

@@ -1,7 +1,10 @@
 package MapEditor.HUD.ActionSection.Panels;
 
+import MapEditor.Units.*;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.Vector;
 
 /**
  * Created by Saeed on 5/19/2017.
@@ -13,10 +16,14 @@ public class Units extends JPanel {
     private JScrollPane buildingScrollPane;
     private JScrollPane terrainScrollPane;
     private JScrollPane othersScrollPane;
-    private JList <String> units = new JList<>(new String[]{"jdflksjaf", "odjfkasjfkj"});
-    private JList <String> building = new JList<>(new String[]{"jdflksjaf", "odjfkasjfkj"});
-    private JList <String> terrain = new JList<>(new String[]{"jdflksjaf", "odjfkasjfkj"});
-    private JList <String> others = new JList<>(new String[]{"jdflksjaf", "odjfkasjfkj"});
+    private Vector <String> units = new Vector<>();
+    private Vector <String> buildings = new Vector<>();
+    private Vector <String> terrains = new Vector<>();
+    private Vector <String> others = new Vector<>();
+    private JList <String> unit;
+    private JList <String> building;
+    private JList <String> terrain;
+    private JList <String> other;
 
     public Units(LayoutManager layout) {
         super(layout);
@@ -27,24 +34,30 @@ public class Units extends JPanel {
 
         tabbedPane.setSize(getWidth(), getHeight());
 
-        setUnits();
+        setUnit();
         setBuilding();
         setTerrain();
-        setOthers();
+        setOther();
 
         setOpaques();
 
         add(tabbedPane);
     }
 
-    private void setUnits() {
-        units.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        units.setForeground(Color.WHITE);
-        unitsScrollPane = new JScrollPane(units);
+    private void setUnit() {
+        for (MapEditor.Units.Units unit : MapEditor.Units.Units.values())
+            units.add(unit.getName());
+        unit = new JList<>(units);
+        unit.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        unit.setForeground(Color.WHITE);
+        unitsScrollPane = new JScrollPane(unit);
         tabbedPane.addTab("Units", unitsScrollPane);
     }
 
     private void setBuilding() {
+        for (Building building : Building.values())
+            buildings.add(building.getName());
+        building = new JList<>(buildings);
         building.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         building.setForeground(Color.WHITE);
         buildingScrollPane = new JScrollPane(building);
@@ -52,37 +65,47 @@ public class Units extends JPanel {
     }
 
     private void setTerrain() {
+        for (Terrain terrain : Terrain.values())
+            terrains.add(terrain.getName());
+        terrain = new JList<>(terrains);
         terrain.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         terrain.setForeground(Color.WHITE);
         terrainScrollPane = new JScrollPane(terrain);
         tabbedPane.addTab("Terrain", terrainScrollPane);
     }
 
-    private void setOthers() {
-        others.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        others.setForeground(Color.WHITE);
-        othersScrollPane = new JScrollPane(others);
+    private void setOther() {
+        for (Others other : Others.values())
+            others.add(other.getName());
+        other = new JList<>(others);
+        other.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        other.setForeground(Color.WHITE);
+        othersScrollPane = new JScrollPane(other);
         tabbedPane.addTab("Others", othersScrollPane);
     }
 
     private void setOpaques() {
         setOpaque(false);
 
-        units.setOpaque(false);
+        unit.setOpaque(false);
         building.setOpaque(false);
-        others.setOpaque(false);
+        terrain.setOpaque(false);
+        other.setOpaque(false);
 
         unitsScrollPane.getViewport().setOpaque(false);
         unitsScrollPane.setOpaque(false);
         buildingScrollPane.getViewport().setOpaque(false);
         buildingScrollPane.setOpaque(false);
+        terrainScrollPane.getViewport().setOpaque(false);
+        terrainScrollPane.setOpaque(false);
         othersScrollPane.getViewport().setOpaque(false);
         othersScrollPane.setOpaque(false);
 
         TransparentListCellRenderer cellRenderer = new TransparentListCellRenderer();
-        units.setCellRenderer(cellRenderer);
+        unit.setCellRenderer(cellRenderer);
         building.setCellRenderer(cellRenderer);
-        others.setCellRenderer(cellRenderer);
+        terrain.setCellRenderer(cellRenderer);
+        other.setCellRenderer(cellRenderer);
     }
 
 }

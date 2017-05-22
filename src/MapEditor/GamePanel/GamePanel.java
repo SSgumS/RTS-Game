@@ -1,12 +1,15 @@
 package MapEditor.GamePanel;
 
 import MapEditor.Addresses.Addresses;
+import MapEditor.GameEvent.Events;
 import MapEditor.HUD.HUD;
 import MapEditor.MainFrame.MainFrame;
+import MapEditor.MenuBar.Menu.MenuDialog;
 import MapEditor.MenuBar.MenuBar;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
 /**
@@ -17,6 +20,7 @@ public class GamePanel extends JPanel {
     private BufferedImage dbImage;
     private MenuBar menuBar;
     private HUD hud;
+    private MenuDialog menu = new MenuDialog(Addresses.frame, true);
 
     private Timer repaint = new Timer(16, e -> {
 //        render();
@@ -29,6 +33,8 @@ public class GamePanel extends JPanel {
         setOpaque(false);
         setSize(MainFrame.width, MainFrame.height);
         setLocation(0, 0);
+
+        Addresses.panel = this;
 
         addMenuBar();
         addHUD();
@@ -65,4 +71,24 @@ public class GamePanel extends JPanel {
         g.dispose();
     }
 
+    @Override
+    protected void processComponentEvent(ComponentEvent e) {
+        super.processComponentEvent(e);
+
+        JButton source = (JButton) e.getSource();
+
+        if (e.getID() == Events.actionOn) {
+            switch (source.getText()) {
+                case "Menu":
+                    menu.setVisible(true);
+                    break;
+            }
+        } else if (e.getID() == Events.actionOff) {
+            switch (source.getText()) {
+                case "Cancel":
+                    menu.setVisible(false);
+                    break;
+            }
+        }
+    }
 }

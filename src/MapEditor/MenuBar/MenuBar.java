@@ -1,11 +1,16 @@
 package MapEditor.MenuBar;
 
+import MapEditor.Addresses.Addresses;
 import MapEditor.Button.Button;
+import MapEditor.GameEvent.Events;
+import MapEditor.GameEvent.GameEvent;
 import MapEditor.MenuBar.EditorButtons.EditorButtons;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +18,7 @@ import java.io.IOException;
 /**
  * Created by Saeed on 5/15/2017.
  */
-public class MenuBar extends JPanel {
+public class MenuBar extends JPanel implements ActionListener {
 
     private BufferedImage image;
     private EditorButtons editorButtons;
@@ -45,6 +50,7 @@ public class MenuBar extends JPanel {
     private void addMenuButton() {
         menuButton = new Button("Menu");
         menuButton.setLocation(getWidth() - 10 - menuButton.getWidth(), 3);
+        menuButton.addActionListener(this);
         add(menuButton);
     }
 
@@ -56,6 +62,11 @@ public class MenuBar extends JPanel {
         paintAll(g);
 
         return dbImage;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Addresses.panel.dispatchEvent(new GameEvent(menuButton, Events.actionOn));
     }
 
 }

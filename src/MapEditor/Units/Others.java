@@ -15,7 +15,7 @@ public enum Others {
     FishLittle("Fish Little", "resources\\images\\fish\\little\\editor"),
     GoldMine("Gold Mine", "resources\\images\\gold mine\\editor"),
     StoneMine("Stone Mine", "resources\\images\\stone mine\\editor"),
-    Broken("Broken", "resources\\images\\tree\\broken\\editor"),
+    Broken("Broken", "resources\\images\\tree\\broken"),
     Tree("Tree", "resources\\images\\tree\\tree");
 
     private String name;
