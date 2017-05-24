@@ -11,18 +11,22 @@ import java.io.IOException;
 public enum Others {
 
     Bush("Bush", "resources\\images\\bush\\editor"),
-    FishBig("Fish Big", "resources\\images\\fish\\big\\editor"),
-    FishLittle("Fish Little", "resources\\images\\fish\\little\\editor"),
+    FishBig("Big Fish", "resources\\images\\fish\\big\\editor"),
+    FishLittle("Little Fish", "resources\\images\\fish\\little\\editor"),
     GoldMine("Gold Mine", "resources\\images\\gold mine\\editor"),
     StoneMine("Stone Mine", "resources\\images\\stone mine\\editor"),
-    Broken("Broken", "resources\\images\\tree\\broken"),
-    Tree("Tree", "resources\\images\\tree\\tree");
+    SpringTree("Spring Tree", "resources\\images\\tree\\tree\\spring"),
+    SummerTree("Spring Tree", "resources\\images\\tree\\tree\\summer"),
+    AutumnTree("Spring Tree", "resources\\images\\tree\\tree\\autumn"),
+    WinterTree("Spring Tree", "resources\\images\\tree\\tree\\winter");
 
     private String name;
-    public BufferedImage[] images;
+    private BufferedImage[] images;
+    private int imageNum = 0;
 
     Others(String name, String dirAddress) {
         this.name = name;
+
         File[] files = new File(dirAddress).listFiles();
         images = new BufferedImage[files.length];
         try {
@@ -36,6 +40,15 @@ public enum Others {
 
     public String getName() {
         return name;
+    }
+
+    public BufferedImage getImage() {
+        BufferedImage image = images[imageNum];
+//        if (imageNum < images.length - 1)
+//            imageNum++;
+//        else
+//            imageNum = 0;
+        return image;
     }
 
 }

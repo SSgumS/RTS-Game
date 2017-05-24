@@ -68,10 +68,10 @@ public class Menu extends JPanel implements ActionListener {
         if (source.equals(quit)) {
             System.exit(0);
         } else if (source.equals(save)) {
-            FileChooser fileChooser = new FileChooser("resources\\map\\maps");
+            FileChooser fileChooser = new FileChooser("resources\\maps\\saves");
             fileChooser.showSaveDialog(this);
         } else if (source.equals(load)) {
-            FileChooser fileChooser = new FileChooser("resources\\map\\maps");
+            FileChooser fileChooser = new FileChooser("resources\\maps\\saves");
             fileChooser.showOpenDialog(this);
         } else if (source.equals(cancel)) {
             Addresses.panel.dispatchEvent(new GameEvent(cancel, Events.actionOff));

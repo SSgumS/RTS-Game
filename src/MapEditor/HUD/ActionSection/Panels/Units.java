@@ -1,6 +1,7 @@
 package MapEditor.HUD.ActionSection.Panels;
 
 import MapEditor.Units.*;
+import MapEditor.Units.Terrain;
 
 import javax.swing.*;
 import java.awt.*;

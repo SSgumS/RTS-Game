@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Saeed on 5/21/2017.
@@ -21,10 +22,12 @@ public enum Terrain {
     Water("Water", "resources\\images\\terrain\\water");
 
     private String name;
-    public BufferedImage[] images;
+    private BufferedImage[] images;
+    private int imageNum = 0;
 
     Terrain(String name, String dirAddress) {
         this.name = name;
+
         File[] files = new File(dirAddress).listFiles();
         images = new BufferedImage[files.length];
         try {
@@ -38,6 +41,16 @@ public enum Terrain {
 
     public String getName() {
         return name;
+    }
+
+    public BufferedImage getImage() {
+//        imageNum = ThreadLocalRandom.current().nextInt(0, images.length);
+        BufferedImage image = images[imageNum];
+//        if (imageNum < images.length - 1)
+//            imageNum++;
+//        else
+//            imageNum = 0;
+        return image;
     }
 
 }

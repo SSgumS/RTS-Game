@@ -10,13 +10,17 @@ import java.io.IOException;
  */
 public enum Building {
 
-    Town("Town", "resources\\images\\town\\town");
+    Town("Town", "resources\\images\\town\\town", 3);
 
     private String name;
-    public BufferedImage[] images;
+    private BufferedImage[] images;
+    private int imageNum = 0;
+    private int size;
 
-    Building(String name, String dirAddress) {
+    Building(String name, String dirAddress, int size) {
         this.name = name;
+        this.size = size;
+
         File[] files = new File(dirAddress).listFiles();
         images = new BufferedImage[files.length];
         try {
@@ -30,6 +34,15 @@ public enum Building {
 
     public String getName() {
         return name;
+    }
+
+    public BufferedImage getImage() {
+        BufferedImage image = images[imageNum];
+//        if (imageNum < images.length - 1)
+//            imageNum++;
+//        else
+//            imageNum = 0;
+        return image;
     }
 
 }

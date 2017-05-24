@@ -16,10 +16,12 @@ public enum Units {
     Worker("Worker", "resources\\images\\worker\\editor");
 
     private String name;
-    public BufferedImage[] images;
+    private BufferedImage[] images;
+    private int imageNum = 0;
 
     Units(String name, String dirAddress) {
         this.name = name;
+
         File[] files = new File(dirAddress).listFiles();
         images = new BufferedImage[files.length];
         try {
@@ -33,6 +35,15 @@ public enum Units {
 
     public String getName() {
         return name;
+    }
+
+    public BufferedImage getImage() {
+        BufferedImage image = images[imageNum];
+//        if (imageNum < images.length - 1)
+//            imageNum++;
+//        else
+//            imageNum = 0;
+        return image;
     }
 
 }

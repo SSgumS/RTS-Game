@@ -2,29 +2,34 @@ package MapEditor.GamePanel;
 
 import MapEditor.Addresses.Addresses;
 import MapEditor.GameEvent.Events;
+import MapEditor.GameEvent.GameEvent;
 import MapEditor.HUD.HUD;
 import MapEditor.MainFrame.MainFrame;
+import MapEditor.Map.Board;
 import MapEditor.MenuBar.Menu.MenuDialog;
 import MapEditor.MenuBar.MenuBar;
+import MapEditor.Units.Unit;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 /**
  * Created by Saeed on 5/15/2017.
  */
-public class GamePanel extends JPanel {
+public class GamePanel extends JPanel implements MouseMotionListener {
 
     private BufferedImage dbImage;
     private MenuBar menuBar;
+    private Board board;
     private HUD hud;
     private MenuDialog menu = new MenuDialog(Addresses.frame, true);
+    public int mouseX, mouseY;
 
     private Timer repaint = new Timer(16, e -> {
-//        render();
-//        paint();
         repaint();
     });
 
@@ -38,13 +43,24 @@ public class GamePanel extends JPanel {
 
         addMenuBar();
         addHUD();
+        addBoard();
 
-        repaint.start();
+        addMouseMotionListener(this);
+
+        repaint();
     }
 
     private void addMenuBar() {
         menuBar = new MenuBar(null);
         add(menuBar);
+    }
+
+    private void addBoard() {
+        board = new Board(null, true, Unit.Grass);
+        board.setSize(getWidth(), hud.getY() - menuBar.getHeight());
+        board.setLocation(0, menuBar.getHeight());
+        board.dispatchEvent(new GameEvent(this, Events.setOrigin));
+        add(board);
     }
 
     private void addHUD() {
@@ -91,4 +107,17 @@ public class GamePanel extends JPanel {
             }
         }
     }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        mouseX = e.getX();
+        mouseY = e.getY();
+
+        if (mouseY == 0 || mouseY == MainFrame.height - 1 || mouseX == 0 || mouseX == MainFrame.width - 1)
+            board.dispatchEvent(new GameEvent(this, Events.actionOn));
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {}
+
 }
