@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * Created by Saeed on 5/21/2017.
  */
-public enum Building {
+public enum Building implements UnitsInterface {
 
     Town("Town", "resources\\images\\town\\town", 3);
 
@@ -16,6 +16,8 @@ public enum Building {
     private BufferedImage[] images;
     private int imageNum = 0;
     private int size;
+    private int xHint;
+    private int yHint;
 
     Building(String name, String dirAddress, int size) {
         this.name = name;
@@ -30,12 +32,20 @@ public enum Building {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        name();
     }
 
+    @Override
+    public String getSource() {
+        return "Building";
+    }
+
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public BufferedImage getImage() {
         BufferedImage image = images[imageNum];
 //        if (imageNum < images.length - 1)
@@ -43,6 +53,16 @@ public enum Building {
 //        else
 //            imageNum = 0;
         return image;
+    }
+
+    @Override
+    public int getXHint() {
+        return xHint;
+    }
+
+    @Override
+    public int getYHint() {
+        return yHint;
     }
 
 }

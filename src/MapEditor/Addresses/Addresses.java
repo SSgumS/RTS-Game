@@ -3,6 +3,7 @@ package MapEditor.Addresses;
 import MapEditor.GamePanel.GamePanel;
 import MapEditor.HUD.HUD;
 import MapEditor.MainFrame.MainFrame;
+import MapEditor.Map.Board;
 
 import java.io.File;
 
@@ -12,6 +13,7 @@ import java.io.File;
 public class Addresses {
 
     public static HUD hud;
+    public static Board board;
     public static GamePanel panel;
     public static MainFrame frame;
     public static File map = new File("resources\\maps\\current.S&M");

@@ -1,12 +1,16 @@
 package MapEditor.HUD.ActionSection;
 
+import MapEditor.Addresses.Addresses;
 import MapEditor.Button.Button;
 import MapEditor.GameEvent.Events;
+import MapEditor.GameEvent.UnitSelectEvent;
 import MapEditor.HUD.ActionSection.Panels.Diplomacy;
 import MapEditor.HUD.ActionSection.Panels.Map;
 import MapEditor.HUD.ActionSection.Panels.Units;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 
@@ -48,5 +52,8 @@ public class ActionSection extends JPanel {
                     break;
             }
         }
+
+//        Addresses.panel.repaint();
     }
+
 }

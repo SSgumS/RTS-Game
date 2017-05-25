@@ -1,16 +1,16 @@
 package MapEditor.Map.Cell;
 
-import MapEditor.Units.Unit;
+import MapEditor.Units.UnitsInterface;
 
 import java.awt.*;
 
 public class Cell {
 
-	private Unit kind;
-	private Unit terrain;
+	private UnitsInterface kind;
+	private UnitsInterface terrain;
 	private Polygon shape;
 
-	public Cell(int[] xs, int[] ys, Unit terrain) {
+	public Cell(int[] xs, int[] ys, UnitsInterface terrain) {
 		shape = new Polygon(xs, ys, 4);
 		this.terrain = terrain;
 	}
@@ -27,19 +27,19 @@ public class Cell {
 		return shape.xpoints[3];
 	}
 
-    public Unit getTerrain() {
+    public UnitsInterface getTerrain() {
         return terrain;
     }
 
-    public void setTerrain(Unit terrain) {
+    public void setTerrain(UnitsInterface terrain) {
         this.terrain = terrain;
     }
 
-    public void setKind(Unit kind) {
+    public void setKind(UnitsInterface kind) {
 		this.kind = kind;
 	}
 
-    public Unit getKind() {
+    public UnitsInterface getKind() {
 		return kind;
 	}
 	

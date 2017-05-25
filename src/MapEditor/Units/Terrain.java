@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Saeed on 5/21/2017.
  */
-public enum Terrain {
+public enum Terrain implements UnitsInterface {
 
     DeepWater("Deep Water", "resources\\images\\terrain\\deep water"),
     Dessert("Dessert", "resources\\images\\terrain\\dessert"),
@@ -24,6 +24,8 @@ public enum Terrain {
     private String name;
     private BufferedImage[] images;
     private int imageNum = 0;
+    private int xHint = 0;
+    private int yHint = 0;
 
     Terrain(String name, String dirAddress) {
         this.name = name;
@@ -39,10 +41,17 @@ public enum Terrain {
         }
     }
 
+    @Override
+    public String getSource() {
+        return "Terrain";
+    }
+
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public BufferedImage getImage() {
 //        imageNum = ThreadLocalRandom.current().nextInt(0, images.length);
         BufferedImage image = images[imageNum];
@@ -51,6 +60,16 @@ public enum Terrain {
 //        else
 //            imageNum = 0;
         return image;
+    }
+
+    @Override
+    public int getXHint() {
+        return xHint;
+    }
+
+    @Override
+    public int getYHint() {
+        return yHint;
     }
 
 }
