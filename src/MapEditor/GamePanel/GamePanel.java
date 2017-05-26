@@ -104,6 +104,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
             board.setSize(getWidth(), hud.getY() - menuBar.getHeight());
             board.setLocation(0, menuBar.getHeight());
             board.dispatchEvent(new GameEvent(this, Events.setOrigin));
+            hud.dispatchEvent(new GameEvent(board, Events.boardCreated));
             add(board);
         } else if (e.getID() == Events.load) {
             remove(board);
