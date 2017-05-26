@@ -8,10 +8,13 @@ import MapEditor.Units.*;
 import MapEditor.Units.Terrain;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
@@ -19,7 +22,7 @@ import java.util.Vector;
 /**
  * Created by Saeed on 5/19/2017.
  */
-public class Units extends JPanel implements ListSelectionListener {
+public class Units extends JPanel implements ListSelectionListener, ChangeListener {
 
     private JTabbedPane tabbedPane;
     private JScrollPane unitsScrollPane;
@@ -53,6 +56,8 @@ public class Units extends JPanel implements ListSelectionListener {
         setOther();
 
         setOpaques();
+
+        tabbedPane.addChangeListener(this);
 
         add(tabbedPane);
     }
@@ -144,12 +149,28 @@ public class Units extends JPanel implements ListSelectionListener {
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        JList source = (JList) e.getSource();
-        UnitsInterface unit = allUnits.elementAt(allUnitsStr.indexOf(source.getSelectedValue()));
+        try {
+            JList source = (JList) e.getSource();
+            UnitsInterface unit = allUnits.elementAt(allUnitsStr.indexOf(source.getSelectedValue()));
 
-        Addresses.board.dispatchEvent(new UnitSelectEvent(source, Events.unitSelect, unit));
+            Addresses.board.dispatchEvent(new UnitSelectEvent(source, Events.unitSelect, unit));
+        } catch (ArrayIndexOutOfBoundsException ignored) {} //throws when we clear selection
     }
 
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        ((JList) ((JScrollPane) ((JTabbedPane) e.getSource()).getSelectedComponent()).getViewport().getView()).clearSelection();
+    }
+
+    @Override
+    protected void processComponentEvent(ComponentEvent e) {
+        super.processComponentEvent(e);
+
+        unit.clearSelection();
+        building.clearSelection();
+        terrain.clearSelection();
+        other.clearSelection();
+    }
 }
 
 class TransparentListCellRenderer extends DefaultListCellRenderer {

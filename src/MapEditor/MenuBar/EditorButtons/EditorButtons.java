@@ -54,6 +54,7 @@ public class EditorButtons extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Button source = (Button) e.getSource();
+
         if (source.equals(map)) {
             map.swapIcons();
             if (selectedButton == map) {

@@ -63,6 +63,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
         board.setSize(getWidth(), hud.getY() - menuBar.getHeight());
         board.setLocation(0, menuBar.getHeight());
         board.dispatchEvent(new GameEvent(this, Events.setOrigin));
+        hud.dispatchEvent(new GameEvent(board, Events.boardCreated));
         add(board);
     }
 
@@ -92,8 +93,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
     protected void processComponentEvent(ComponentEvent e) {
         super.processComponentEvent(e);
 
-        JButton source = (JButton) e.getSource();
-
         if (e.getID() == Events.actionOn) {
             menu.setVisible(true);
         } else if (e.getID() == Events.actionOff) {
@@ -106,7 +105,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
             board.setLocation(0, menuBar.getHeight());
             board.dispatchEvent(new GameEvent(this, Events.setOrigin));
             add(board);
-        }
+        } else if (e.getID() == Events.load) {
+            remove(board);
+            board = Addresses.board;
+            hud.dispatchEvent(new GameEvent(board, Events.boardCreated));
+            add(board);
+        } else if (e.getID() == Events.clearSelection)
+            hud.dispatchEvent(new GameEvent(this, Events.clearSelection));
     }
 
     @Override

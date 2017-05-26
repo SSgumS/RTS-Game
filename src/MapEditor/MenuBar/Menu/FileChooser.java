@@ -1,13 +1,15 @@
 package MapEditor.MenuBar.Menu;
 
 import MapEditor.Addresses.Addresses;
+import MapEditor.GameEvent.Events;
+import MapEditor.GameEvent.GameEvent;
+import MapEditor.Map.Board;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -40,14 +42,29 @@ public class FileChooser extends JFileChooser implements ActionListener {
 
             if (value == JOptionPane.YES_OPTION) {
                 try {
-                    Files.copy(current.toPath(), Paths.get("resources\\maps\\saves", name), REPLACE_EXISTING);
+                    File file = new File("resources\\maps\\saves\\" + name);
+                    file.delete();
+                    file.createNewFile();
+                    ObjectOutputStream ou = new ObjectOutputStream(new FileOutputStream(file));
+                    ou.writeObject(Addresses.board);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+//                try {
+//                    Files.copy(current.toPath(), Paths.get("resources\\maps\\saves", name), REPLACE_EXISTING);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             }
         } else {
             try {
-                Files.copy(current.toPath(), Paths.get("resources\\maps\\saves", name), REPLACE_EXISTING);
+                File file = new File("resources\\maps\\saves\\" + name);
+                file.createNewFile();
+                ObjectOutputStream ou = new ObjectOutputStream(new FileOutputStream(file));
+
+
+
+                ou.writeObject(Addresses.board);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -60,8 +77,12 @@ public class FileChooser extends JFileChooser implements ActionListener {
             name = name + ".S&M";
 
         try {
-            Files.copy(Paths.get("resources\\maps\\saves", name), current.toPath(), REPLACE_EXISTING);
-        } catch (IOException e) {
+            File file = new File("resources\\maps\\saves\\" + name);
+            ObjectInputStream ou = new ObjectInputStream(new FileInputStream(file));
+            Addresses.board = (Board) ou.readObject();
+            Addresses.panel.dispatchEvent(new GameEvent(this, Events.load));
+            Addresses.panel.dispatchEvent(new GameEvent(this, Events.clearSelection));
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

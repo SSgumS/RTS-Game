@@ -1,6 +1,7 @@
 package MapEditor.MenuBar.Menu;
 
 import MapEditor.Addresses.Addresses;
+import MapEditor.Button.RegularButton;
 import MapEditor.GameEvent.Events;
 import MapEditor.GameEvent.GameEvent;
 import MapEditor.MainFrame.MainFrame;
@@ -15,10 +16,10 @@ import java.awt.event.ActionListener;
  */
 public class Menu extends JPanel implements ActionListener {
 
-    private JButton quit = new JButton("Quit to Main Menu");
-    private JButton save = new JButton("Save");
-    private JButton load = new JButton("Load");
-    private JButton cancel = new JButton("Cancel");
+    private RegularButton quit = new RegularButton("Quit to Main Menu");
+    private RegularButton save = new RegularButton("Save");
+    private RegularButton load = new RegularButton("Load");
+    private RegularButton cancel = new RegularButton("Cancel");
 
     public Menu(LayoutManager layout) {
         super(layout);

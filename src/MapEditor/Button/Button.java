@@ -1,5 +1,7 @@
 package MapEditor.Button;
 
+import MapEditor.Addresses.Addresses;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -20,6 +22,8 @@ public class Button extends JButton {
 
         setHorizontalTextPosition(CENTER);
         setForeground(new Color(255, 247, 153));
+
+        addMouseMotionListener(Addresses.panel);
     }
 
     public void swapIcons() {

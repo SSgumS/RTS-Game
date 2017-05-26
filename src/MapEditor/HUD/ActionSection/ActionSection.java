@@ -35,11 +35,11 @@ public class ActionSection extends JPanel {
     protected void processComponentEvent(ComponentEvent e) {
         super.processComponentEvent(e);
 
-        Button source = (Button) e.getSource();
-
-        removeAll();
-
         if (e.getID() == Events.actionOn) {
+            Button source = (Button) e.getSource();
+
+            removeAll();
+
             switch (source.getText()) {
                 case "Map":
                     add(map);
@@ -51,7 +51,10 @@ public class ActionSection extends JPanel {
                     add(diplomacy);
                     break;
             }
-        }
+        } else if (e.getID() == Events.actionOff)
+            removeAll();
+        else if (e.getID() == Events.clearSelection)
+            units.dispatchEvent(e);
 
 //        Addresses.panel.repaint();
     }

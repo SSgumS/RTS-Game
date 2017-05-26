@@ -1,5 +1,8 @@
 package MapEditor.Units;
 
+import MapEditor.Season.Season;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -9,8 +12,11 @@ public interface UnitsInterface {
 
     String getSource();
     String getName();
-    BufferedImage getImage();
+    BufferedImage getImage(int i, int j, Season season);
+    int getSize();
     int getXHint();
     int getYHint();
+    Color getColor();
+    boolean isAllowed(Terrain terrain);
 
 }

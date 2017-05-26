@@ -13,5 +13,8 @@ public class Events {
     public static int setOrigin = ComponentEvent.RESERVED_ID_MAX + 3;
     public static int unitSelect = ComponentEvent.RESERVED_ID_MAX + 4;
     public static int generateMap = ComponentEvent.RESERVED_ID_MAX + 5;
+    public static int boardCreated = ComponentEvent.RESERVED_ID_MAX + 6;
+    public static int load = ComponentEvent.RESERVED_ID_MAX + 7;
+    public static int clearSelection = ComponentEvent.RESERVED_ID_MAX + 8;
 
 }

@@ -1,6 +1,7 @@
 package MapEditor.HUD.ActionSection.Panels;
 
 import MapEditor.Addresses.Addresses;
+import MapEditor.Button.RegularButton;
 import MapEditor.GameEvent.Events;
 import MapEditor.GameEvent.GameEvent;
 import MapEditor.GameEvent.GenerateMapEvent;
@@ -51,8 +52,8 @@ public class Map extends JPanel implements ActionListener {
         label.setLocation(10, getHeight()/4 + 10);
         add(label);
 
-        terrains = new JComboBox<>(new String[]{"Deep Water", "Dessert", "Dirt", "Dirt-Snow", "Grass", "Grass-Snow", "Ice", "Snow", "Water"});
-        terrains.setSelectedIndex(4);
+        terrains = new JComboBox<>(new String[]{"Deep Water", "Dessert", "Grass", "Snow", "Water"});
+        terrains.setSelectedIndex(2);
         terrains.setSize(getWidth()/2 - 10, getHeight()/4 - 20);
         terrains.setLocation(label.getX() + label.getWidth() + 10, getHeight()/4 + 10);
         add(terrains);
@@ -72,7 +73,7 @@ public class Map extends JPanel implements ActionListener {
     }
 
     private void addButton() {
-        JButton button = new JButton("Generate");
+        RegularButton button = new RegularButton("Generate");
         button.setSize(3*getWidth()/4, getHeight()/4 - 20);
         button.setLocation(getWidth()/2 - button.getWidth()/2, 3*getHeight()/4 + 10);
         button.addActionListener(this);
@@ -82,6 +83,7 @@ public class Map extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Addresses.panel.dispatchEvent(new GenerateMapEvent((JButton) e.getSource(), Events.generateMap, (String) mapSize.getSelectedItem(), (String) terrains.getSelectedItem(), (String) seasons.getSelectedItem()));
+        Addresses.panel.dispatchEvent(new GameEvent((JButton) e.getSource(), Events.clearSelection));
     }
 
 }

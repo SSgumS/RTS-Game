@@ -4,6 +4,7 @@ import MapEditor.Button.*;
 import MapEditor.Button.Button;
 import MapEditor.GameEvent.Events;
 import MapEditor.HUD.ActionSection.ActionSection;
+import MapEditor.HUD.MiniMap.MiniMap;
 import MapEditor.MainFrame.MainFrame;
 
 import javax.imageio.ImageIO;
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class HUD extends JPanel {
 
     private BufferedImage image;
+    private MiniMap miniMap = new MiniMap(null, true);
     private ActionSection actionSection = new ActionSection(null);
 
     public HUD(LayoutManager layout) {
@@ -35,6 +37,9 @@ public class HUD extends JPanel {
         setSize(image.getWidth(), image.getHeight());
         setLocation(0, MainFrame.height - getHeight());
 
+        miniMap.setLocation(getWidth() - 19 - miniMap.getWidth(), getHeight() - 10 - miniMap.getHeight());
+
+        add(miniMap);
         add(actionSection);
     }
 
@@ -53,6 +58,10 @@ public class HUD extends JPanel {
         super.processComponentEvent(e);
 
         if (e.getID() == Events.actionOn || e.getID() == Events.actionOff)
+            actionSection.dispatchEvent(e);
+        else if (e.getID() == Events.boardCreated)
+            miniMap.dispatchEvent(e);
+        else if (e.getID() == Events.clearSelection)
             actionSection.dispatchEvent(e);
     }
 }
