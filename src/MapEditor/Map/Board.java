@@ -2,6 +2,7 @@ package MapEditor.Map;
 
 import MapEditor.Addresses.Addresses;
 import MapEditor.GameEvent.Events;
+import MapEditor.GameEvent.GameEvent;
 import MapEditor.GameEvent.UnitSelectEvent;
 import MapEditor.MainFrame.MainFrame;
 import MapEditor.Map.Cell.Cell;
@@ -11,10 +12,7 @@ import jdk.internal.org.objectweb.asm.commons.SerialVersionUIDAdder;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -24,16 +22,20 @@ import java.util.List;
 /**
  * Created by Saeed on 5/23/2017.
  */
-public class Board extends JPanel implements Runnable, MouseListener, MouseMotionListener {
+public class Board extends JPanel implements Runnable, MouseListener, MouseMotionListener, MouseWheelListener {
 
     private boolean isThreadRunning = false;
     public int mapSize;
     private Season season;
+    private int originalWidth = 96, originalHeight = 48;
+    private int originalXo, originalYo;
     public int width = 96, height = 48;
     public int xo, yo;
     public Cell[][] cells;
     private Cell selectedCell;
     private UnitsInterface kind = Terrain.Grass;
+    private double zoom = 1;
+    private boolean zoomChanged = false;
 
     public Board(LayoutManager layout, boolean isDoubleBuffered, int mapSize, Terrain terrain, Season season) {
         super(layout, isDoubleBuffered);
@@ -53,6 +55,7 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
         addMouseListener(this);
         addMouseMotionListener(this);
+        addMouseWheelListener(this);
 
         setBackground(Color.black);
     }
@@ -61,26 +64,46 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
     protected synchronized void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        BufferedImage image;
+
         for (int j = mapSize - 1; j >= 0; j--) {
             for (int i = 0; i < mapSize; i++) {
-                UnitsInterface terrain = cells[i][j].getTerrain();
-                g.drawImage(terrain.getImage(i, j, season), cells[i][j].getOriginX() + xo, cells[i][j].getOriginY() + yo, null);
+                if (zoomChanged)
+                    cells[i][j].zoom(zoom);
 
-                try {
-                    if (!cells[i][j].hasParent()) {
-                        UnitsInterface kind = cells[i][j].getKind();
-                        g.drawImage(kind.getImage(i, j, season), cells[i][j].getOriginX() - kind.getXHint() + xo, cells[i][j].getOriginY() - kind.getYHint() + yo, null);
-                    }
-                } catch (NullPointerException ignored) {}
+                if (cells[i][j].getOriginX() + xo > -5*width && cells[i][j].getOriginX() + xo < getWidth() + 5*width && cells[i][j].getOriginY() + yo > -5*height && cells[i][j].getOriginY() + yo < getHeight() + 5*height) {
+                    UnitsInterface terrain = cells[i][j].getTerrain();
+                    image = terrain.getImage(i, j, season);
+                    g.drawImage(image, cells[i][j].getOriginX() + xo, cells[i][j].getOriginY() + yo, (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
 
-                if (cells[i][j].getShape().contains(Addresses.panel.mouseX - xo, Addresses.panel.mouseY - getY() - yo))
-                    selectedCell = cells[i][j];
-//                    Graphics2D g2 = image.createGraphics();
-//                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f));
+                    try {
+                        if (!cells[i][j].hasParent()) {
+                            UnitsInterface kind = cells[i][j].getKind();
+                            image = kind.getImage(i, j, season);
+                            g.drawImage(image, (int) (cells[i][j].getOriginX() - zoom*kind.getXHint() + xo), (int) (cells[i][j].getOriginY() - zoom*kind.getYHint() + yo), (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
+                        }
+                    } catch (NullPointerException ignored) {}
+
+                    if (cells[i][j].getShape().contains(Addresses.panel.mouseX - xo, Addresses.panel.mouseY - getY() - yo))
+                        selectedCell = cells[i][j];
+                }
             }
         }
 
-        g.drawImage(kind.getImage(0, 0, season), selectedCell.getOriginX() - kind.getXHint() + xo, selectedCell.getOriginY() - kind.getYHint() + yo, null);
+        try {
+            image = kind.getImage(0, 0, season);
+
+            BufferedImage bufferedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+            Graphics2D g2 = bufferedImage.createGraphics();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g2.drawImage(image, 0, 0, null);
+            g2.dispose();
+
+            g.drawImage(bufferedImage, (int) (selectedCell.getOriginX() - zoom*kind.getXHint() + xo), (int) (selectedCell.getOriginY() - zoom*kind.getYHint() + yo), (int) (zoom*bufferedImage.getWidth()), (int) (zoom*bufferedImage.getHeight()), null);
+        } catch (NullPointerException ignored) {}
+
+        if (zoomChanged)
+            zoomChanged = false;
     }
 
     @Override
@@ -129,14 +152,19 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
     @Override
     public synchronized void run() {
         while(Addresses.panel.mouseY == 0 || Addresses.panel.mouseY == MainFrame.height - 1 || Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1 || yo > -mapSize*height/2 + getHeight() || xo > -mapSize*width + getWidth()) {
-            if(Addresses.panel.mouseY == 0 && yo < mapSize*height/2)
-                yo+=48;
-            else if(Addresses.panel.mouseY == MainFrame.height - 1 && yo > -mapSize*height/2 + getHeight())
-                yo-=48;
-            else if(Addresses.panel.mouseX == 0 && xo < 0)
-                xo+=48;
-            else if(Addresses.panel.mouseX == getWidth() - 1 && xo > -mapSize*width + getWidth())
-                xo-=48;
+            if(Addresses.panel.mouseY == 0 && yo < mapSize*height/2) {
+                yo += zoom*48;
+                originalYo += 48;
+            } else if(Addresses.panel.mouseY == MainFrame.height - 1 && yo > -mapSize*height/2 + getHeight()) {
+                yo -= zoom*48;
+                originalYo -= 48;
+            } else if(Addresses.panel.mouseX == 0 && xo < 0) {
+                xo += zoom*48;
+                originalXo += 48;
+            } else if(Addresses.panel.mouseX == getWidth() - 1 && xo > -mapSize*width + getWidth()) {
+                xo -= zoom*48;
+                originalXo -= 48;
+            }
 
 //            Addresses.panel.repaint();
 
@@ -160,10 +188,36 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
                 new Thread(this).start();
             }
         } else if (e.getID() == Events.setOrigin) {
-            xo = -mapSize*width/2 + getWidth()/2;
-            yo = getHeight()/2;
+            originalXo = xo = -mapSize*width/2 + getWidth()/2;
+            originalYo = yo = getHeight()/2;
         } else if (e.getID() == Events.unitSelect)
             kind = ((UnitSelectEvent) e).getUnit();
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int mouseWheel;
+        if (-e.getPreciseWheelRotation() > 0)
+            mouseWheel = (int) Math.ceil(-e.getPreciseWheelRotation());
+        else
+            mouseWheel = (int) -e.getPreciseWheelRotation();
+
+        zoom += (double) mouseWheel/4;
+
+        if (zoom < 0.5)
+            zoom = 0.5;
+        else if (zoom > 2)
+            zoom = 2;
+
+        zoomChanged = true;
+
+        xo = (int) -(zoom*(Addresses.panel.mouseX - originalXo) - Addresses.panel.mouseX);
+        yo = (int) -(zoom*(Addresses.panel.mouseY - getY() - originalYo) - (Addresses.panel.mouseY - getY()));
+
+        width = (int) (zoom*originalWidth);
+        height = (int) (zoom*originalHeight);
+
+        Addresses.hud.dispatchEvent(new GameEvent(this, Events.zoom));
     }
 
     @Override

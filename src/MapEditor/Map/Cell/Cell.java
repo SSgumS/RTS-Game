@@ -15,11 +15,14 @@ public class Cell implements Serializable {
 	private UnitsInterface terrain;
 	private Polygon shape;
 	private Cell parent;
+	private int[] originalXs, originalYs;
 	private Vector <Cell> relatedCells = new Vector<>();
 
 	public Cell(int i, int j, int[] xs, int[] ys, UnitsInterface terrain) {
 	    this.i = i;
 	    this.j = j;
+	    originalXs = xs;
+	    originalYs = ys;
 		shape = new Polygon(xs, ys, 4);
 		this.terrain = terrain;
 	}
@@ -88,6 +91,14 @@ public class Cell implements Serializable {
 
     public boolean hasParent() {
         return parent != null;
+    }
+
+    public void zoom(double zoom) {
+        for (int k = 0; k < 4; k++) {
+            shape.xpoints[k] = (int) (zoom*originalXs[k]);
+            shape.ypoints[k] = (int) (zoom*originalYs[k]);
+        }
+        shape.invalidate();
     }
 
 }

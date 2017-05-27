@@ -16,6 +16,5 @@ public class Addresses {
     public static Board board;
     public static GamePanel panel;
     public static MainFrame frame;
-    public static File map = new File("resources\\maps\\current.S&M");
 
 }

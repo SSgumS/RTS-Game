@@ -20,8 +20,6 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class FileChooser extends JFileChooser implements ActionListener {
 
-    private File current = Addresses.map;
-
     public FileChooser(String currentDirectoryPath) {
         super(currentDirectoryPath);
 
@@ -29,8 +27,6 @@ public class FileChooser extends JFileChooser implements ActionListener {
 
         addActionListener(this);
     }
-
-
 
     private void save() {
         String name = getSelectedFile().getName();
@@ -47,14 +43,11 @@ public class FileChooser extends JFileChooser implements ActionListener {
                     file.createNewFile();
                     ObjectOutputStream ou = new ObjectOutputStream(new FileOutputStream(file));
                     ou.writeObject(Addresses.board);
+                    ou.flush();
+                    ou.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-//                try {
-//                    Files.copy(current.toPath(), Paths.get("resources\\maps\\saves", name), REPLACE_EXISTING);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
             }
         } else {
             try {
@@ -78,10 +71,11 @@ public class FileChooser extends JFileChooser implements ActionListener {
 
         try {
             File file = new File("resources\\maps\\saves\\" + name);
-            ObjectInputStream ou = new ObjectInputStream(new FileInputStream(file));
-            Addresses.board = (Board) ou.readObject();
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+            Addresses.board = (Board) in.readObject();
             Addresses.panel.dispatchEvent(new GameEvent(this, Events.load));
             Addresses.panel.dispatchEvent(new GameEvent(this, Events.clearSelection));
+            in.close();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

@@ -59,7 +59,7 @@ public class HUD extends JPanel {
 
         if (e.getID() == Events.actionOn || e.getID() == Events.actionOff)
             actionSection.dispatchEvent(e);
-        else if (e.getID() == Events.boardCreated)
+        else if (e.getID() == Events.boardCreated || e.getID() == Events.zoom)
             miniMap.dispatchEvent(e);
         else if (e.getID() == Events.clearSelection)
             actionSection.dispatchEvent(e);

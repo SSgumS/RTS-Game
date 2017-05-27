@@ -59,6 +59,11 @@ public class Units extends JPanel implements ListSelectionListener, ChangeListen
 
         tabbedPane.addChangeListener(this);
 
+        unitsScrollPane.addMouseMotionListener(Addresses.board);
+        buildingScrollPane.addMouseMotionListener(Addresses.board);
+        terrainScrollPane.addMouseMotionListener(Addresses.board);
+        othersScrollPane.addMouseMotionListener(Addresses.board);
+
         add(tabbedPane);
     }
 

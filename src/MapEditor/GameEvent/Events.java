@@ -16,5 +16,6 @@ public class Events {
     public static int boardCreated = ComponentEvent.RESERVED_ID_MAX + 6;
     public static int load = ComponentEvent.RESERVED_ID_MAX + 7;
     public static int clearSelection = ComponentEvent.RESERVED_ID_MAX + 8;
+    public static int zoom = ComponentEvent.RESERVED_ID_MAX + 9;
 
 }
