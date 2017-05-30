@@ -22,6 +22,7 @@ public class MiniMap extends JPanel {
     private double height;
     private double rectWidth;
     private double rectHeight;
+    private Path2D.Double[][] paths;
 
     public MiniMap(LayoutManager layout, boolean isDoubleBuffered) {
         super(layout, isDoubleBuffered);
@@ -37,28 +38,21 @@ public class MiniMap extends JPanel {
 
         for (int i = 0; i < board.mapSize; i++) {
             for (int j = 0; j < board.mapSize; j++) {
-                Path2D.Double path = new Path2D.Double();
-                path.moveTo(j*width/2+i*width/2, -j*height/2+i*height/2 + getHeight()/2);
-                path.lineTo(width/2+j*width/2+i*width/2, -height/2-j*height/2+i*height/2 + getHeight()/2);
-                path.lineTo(width+j*width/2+i*width/2, -j*height/2+i*height/2 + getHeight()/2);
-                path.lineTo(width/2+j*width/2+i*width/2, height/2-j*height/2+i*height/2 + getHeight()/2);
-                path.closePath();
-
                 Cell cell = board.cells[i][j];
 
                 g2D.setColor(cell.getTerrain().getColor());
-                g2D.fill(path);
+                g2D.fill(paths[i][j]);
 
                 try {
                     g2D.setColor(cell.getColor());
-                    g2D.fill(path);
+                    g2D.fill(paths[i][j]);
                 } catch (NullPointerException ignored) {}
-
-                Rectangle2D.Double rect = new Rectangle2D.Double((double) -board.xo*width/board.width, (double) -board.yo*height/board.height + getHeight()/2, rectWidth, rectHeight);
-                g2D.setColor(Color.WHITE);
-                g2D.draw(rect);
             }
         }
+
+        Rectangle2D.Double rect = new Rectangle2D.Double((double) -board.xo*width/board.width, (double) -board.yo*height/board.height + getHeight()/2, rectWidth, rectHeight);
+        g2D.setColor(Color.WHITE);
+        g2D.draw(rect);
     }
 
     @Override
@@ -72,6 +66,21 @@ public class MiniMap extends JPanel {
 
         rectWidth = (double) board.getWidth()*width/board.width;
         rectHeight = (double) board.getHeight()*height/board.height;
+
+        paths = new Path2D.Double[board.mapSize][board.mapSize];
+
+        for (int i = 0; i < board.mapSize; i++) {
+            for (int j = 0; j < board.mapSize; j++) {
+                Path2D.Double path = new Path2D.Double();
+                path.moveTo(j*width/2+i*width/2, -j*height/2+i*height/2 + getHeight()/2);
+                path.lineTo(width/2+j*width/2+i*width/2, -height/2-j*height/2+i*height/2 + getHeight()/2);
+                path.lineTo(width+j*width/2+i*width/2, -j*height/2+i*height/2 + getHeight()/2);
+                path.lineTo(width/2+j*width/2+i*width/2, height/2-j*height/2+i*height/2 + getHeight()/2);
+                path.closePath();
+
+                paths[i][j] = path;
+            }
+        }
     }
 
 }
