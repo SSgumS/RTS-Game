@@ -17,5 +17,6 @@ public class Events {
     public static int load = ComponentEvent.RESERVED_ID_MAX + 7;
     public static int clearSelection = ComponentEvent.RESERVED_ID_MAX + 8;
     public static int zoom = ComponentEvent.RESERVED_ID_MAX + 9;
+    public static int cellRefactor = ComponentEvent.RESERVED_ID_MAX + 10;
 
 }

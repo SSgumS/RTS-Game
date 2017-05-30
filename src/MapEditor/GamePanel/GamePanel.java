@@ -31,10 +31,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
     private MenuDialog menu = new MenuDialog(Addresses.frame, true);
     public int mouseX, mouseY;
 
-    private Timer repaint = new Timer(16, e -> {
-        repaint();
-    });
-
     public GamePanel(LayoutManager layout) {
         super(layout);
         setOpaque(false);
@@ -76,9 +72,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
     @Override
     public void run() {
         while (true) {
-//            Point mouse = MouseInfo.getPointerInfo().getLocation();
-//            mouseX = mouse.x;
-//            mouseY = mouse.y;
             repaint();
 
             try {

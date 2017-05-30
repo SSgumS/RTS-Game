@@ -8,16 +8,11 @@ import MapEditor.MainFrame.MainFrame;
 import MapEditor.Map.Cell.Cell;
 import MapEditor.Season.Season;
 import MapEditor.Units.*;
-import jdk.internal.org.objectweb.asm.commons.SerialVersionUIDAdder;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.List;
 
 /**
  * Created by Saeed on 5/23/2017.
@@ -26,8 +21,8 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
     private boolean isThreadRunning = false;
     public int mapSize;
-    private Season season;
-    private int originalWidth = 96, originalHeight = 48;
+    public Season season;
+    public int originalWidth = 96, originalHeight = 48;
     private int originalXo, originalYo;
     public int width = 96, height = 48;
     public int xo, yo;
@@ -72,8 +67,7 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
                     cells[i][j].zoom(zoom);
 
                 if (cells[i][j].getOriginX() + xo > -5*width && cells[i][j].getOriginX() + xo < getWidth() + 5*width && cells[i][j].getOriginY() + yo > -5*height && cells[i][j].getOriginY() + yo < getHeight() + 5*height) {
-                    UnitsInterface terrain = cells[i][j].getTerrain();
-                    image = terrain.getImage(i, j, season);
+                    image = cells[i][j].getTerrainImage();
                     g.drawImage(image, cells[i][j].getOriginX() + xo, cells[i][j].getOriginY() + yo, (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
 
                     try {
