@@ -102,11 +102,13 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if ("Terrain".equals(kind.getSource())) {
-            selectedCell.setTerrain(kind);
-            selectedCell.clearKind();
-        } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
-            selectedCell.setKind(kind);
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            if ("Terrain".equals(kind.getSource())) {
+                selectedCell.setTerrain(kind);
+                selectedCell.clearKind();
+            } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
+                selectedCell.setKind(kind);
+        }
 
 //        Addresses.panel.repaint();
     }
@@ -121,11 +123,13 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
             new Thread(this).start();
         }
 
-        if ("Terrain".equals(kind.getSource())) {
-            selectedCell.setTerrain(kind);
-            selectedCell.clearKind();
-        } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
-            selectedCell.setKind(kind);
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            if ("Terrain".equals(kind.getSource())) {
+                selectedCell.setTerrain(kind);
+                selectedCell.clearKind();
+            } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
+                selectedCell.setKind(kind);
+        }
 
 //        Addresses.panel.repaint();
     }

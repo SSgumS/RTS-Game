@@ -15,12 +15,12 @@ import java.util.Vector;
  */
 public enum Units implements UnitsInterface {
 
-    Boat("Boat", "resources\\images\\boat\\editor", Color.BLUE, (int) -11.5, 45,
-            Terrain.Dessert, Terrain.Grass, Terrain.Ice, Terrain.Snow),
-    Ship("Ship", "resources\\images\\ship\\editor", Color.BLUE, 0, 0,
-            Terrain.Dessert, Terrain.Grass, Terrain.Ice, Terrain.Snow),
-    Soldier("Soldier", "resources\\images\\soldier\\editor", Color.BLUE, -17, 9,
-            Terrain.DeepWater, Terrain.Ice, Terrain.Water),
+//    Boat("Boat", "resources\\images\\boat\\editor", Color.BLUE, (int) -11.5, 45,
+//            Terrain.Dessert, Terrain.Grass, Terrain.Ice, Terrain.Snow),
+//    Ship("Ship", "resources\\images\\ship\\editor", Color.BLUE, 0, 0,
+//            Terrain.Dessert, Terrain.Grass, Terrain.Ice, Terrain.Snow),
+//    Soldier("Soldier", "resources\\images\\soldier\\editor", Color.BLUE, -17, 9,
+//            Terrain.DeepWater, Terrain.Ice, Terrain.Water),
     Worker("Worker", "resources\\images\\worker\\editor", Color.BLUE, -34, -1,
             Terrain.DeepWater, Terrain.Ice, Terrain.Water);
 
