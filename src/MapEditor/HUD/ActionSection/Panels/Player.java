@@ -27,11 +27,7 @@ public class Player extends JPanel implements ActionListener {
         setOpaque(false);
         setSize(271, 173);
 
-        players[0] = player1;
-        players[1] = player2;
-        players[2] = player3;
-        players[3] = player4;
-
+        initButtons();
         setSizes();
         setLocations();
         addRadioButtons();
@@ -40,6 +36,17 @@ public class Player extends JPanel implements ActionListener {
 
         add(player1);
         add(player2);
+    }
+
+    private void initButtons() {
+        players[0] = player1;
+        players[1] = player2;
+        players[2] = player3;
+        players[3] = player4;
+        player1.setBackground(Color.BLUE);
+        player2.setBackground(Color.RED);
+        player3.setBackground(Color.BLACK);
+        player4.setBackground(Color.MAGENTA);
     }
 
     private void setSizes() {
