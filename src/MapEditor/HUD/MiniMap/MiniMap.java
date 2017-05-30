@@ -2,6 +2,7 @@ package MapEditor.HUD.MiniMap;
 
 import MapEditor.Addresses.Addresses;
 import MapEditor.Map.Board;
+import MapEditor.Map.Cell.Cell;
 import MapEditor.Units.Terrain;
 import MapEditor.Units.UnitsInterface;
 
@@ -43,13 +44,13 @@ public class MiniMap extends JPanel {
                 path.lineTo(width/2+j*width/2+i*width/2, height/2-j*height/2+i*height/2 + getHeight()/2);
                 path.closePath();
 
-                UnitsInterface terrain = board.cells[i][j].getTerrain();
-                g2D.setColor(terrain.getColor());
+                Cell cell = board.cells[i][j];
+
+                g2D.setColor(cell.getTerrain().getColor());
                 g2D.fill(path);
 
                 try {
-                    UnitsInterface kind = board.cells[i][j].getKind();
-                    g2D.setColor(kind.getColor());
+                    g2D.setColor(cell.getColor());
                     g2D.fill(path);
                 } catch (NullPointerException ignored) {}
 

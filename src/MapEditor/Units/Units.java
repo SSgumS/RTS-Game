@@ -21,7 +21,7 @@ public enum Units implements UnitsInterface {
 //            Terrain.Dessert, Terrain.Grass, Terrain.Ice, Terrain.Snow),
 //    Soldier("Soldier", "resources\\images\\soldier\\editor", Color.BLUE, -17, 9,
 //            Terrain.DeepWater, Terrain.Ice, Terrain.Water),
-    Worker("Worker", "resources\\images\\worker\\editor", Color.BLUE, -34, -1,
+    Worker("Worker", "resources\\images\\worker\\editor", -34, -1,
             Terrain.DeepWater, Terrain.Ice, Terrain.Water);
 
     private String name;
@@ -29,12 +29,10 @@ public enum Units implements UnitsInterface {
     private int size = 1;
     private int xHint;
     private int yHint;
-    private Color color;
     private Vector<Terrain> abandonTerrains;
 
-    Units(String name, String dirAddress, Color color, int xHint, int yHint, Terrain... abandonTerrains) {
+    Units(String name, String dirAddress, int xHint, int yHint, Terrain... abandonTerrains) {
         this.name = name;
-        this.color = color;
         this.xHint = xHint;
         this.yHint = yHint;
         this.abandonTerrains = new Vector<>(Arrays.asList(abandonTerrains));
@@ -82,7 +80,7 @@ public enum Units implements UnitsInterface {
 
     @Override
     public Color getColor() {
-        return color;
+        return null;
     }
 
     @Override

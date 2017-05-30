@@ -17,7 +17,7 @@ public class EditorButtons extends JPanel implements ActionListener {
 
     private Button map;
     private Button units;
-    private Button diplomacy;
+    private Button player;
     private Button selectedButton;
 
     public EditorButtons(LayoutManager layout) {
@@ -25,9 +25,8 @@ public class EditorButtons extends JPanel implements ActionListener {
         setOpaque(false);
 
         addMapButton();
-//        addTerrainButton();
         addUnitsButton();
-        addGameButton();
+        addPlayerButton();
     }
 
     private void addMapButton() {
@@ -44,11 +43,11 @@ public class EditorButtons extends JPanel implements ActionListener {
         add(units);
     }
 
-    private void addGameButton() {
-        diplomacy = new Button("Diplomacy");
-        diplomacy.setLocation(units.getX() + units.getWidth() + 10, 3);
-        diplomacy.addActionListener(this);
-        add(diplomacy);
+    private void addPlayerButton() {
+        player = new Button("Player");
+        player.setLocation(units.getX() + units.getWidth() + 10, 3);
+        player.addActionListener(this);
+        add(player);
     }
 
     @Override
@@ -77,16 +76,16 @@ public class EditorButtons extends JPanel implements ActionListener {
                 selectedButton = units;
                 Addresses.hud.dispatchEvent(new GameEvent(units, Events.actionOn));
             }
-        } else if (source.equals(diplomacy)) {
-            diplomacy.swapIcons();
-            if (selectedButton == diplomacy) {
+        } else if (source.equals(player)) {
+            player.swapIcons();
+            if (selectedButton == player) {
                 selectedButton = null;
-                Addresses.hud.dispatchEvent(new GameEvent(diplomacy, Events.actionOff));
+                Addresses.hud.dispatchEvent(new GameEvent(player, Events.actionOff));
             } else {
                 if (selectedButton != null)
                     selectedButton.swapIcons();
-                selectedButton = diplomacy;
-                Addresses.hud.dispatchEvent(new GameEvent(diplomacy, Events.actionOn));
+                selectedButton = player;
+                Addresses.hud.dispatchEvent(new GameEvent(player, Events.actionOn));
             }
         }
     }

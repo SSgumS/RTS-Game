@@ -50,11 +50,11 @@ public class GenerateMapEvent extends ComponentEvent {
     public int getSize() {
         switch (size) {
             case "2 Players (Small)":
-                return 100;
+                return 75;
             case "3 Players (Medium)":
-                return 150;
+                return 100;
             case "4 Players (Large)":
-                return 200;
+                return 125;
         }
         return 0;
     }
@@ -68,4 +68,18 @@ public class GenerateMapEvent extends ComponentEvent {
     public Season getSeason() {
         return Season.valueOf(season);
     }
+
+    public int getPlayerNumber() {
+        switch (size) {
+            case "2 Players (Small)":
+                return 2;
+            case "3 Players (Medium)":
+                return 3;
+            case "4 Players (Large)":
+                return 4;
+        }
+
+        return 0;
+    }
+
 }

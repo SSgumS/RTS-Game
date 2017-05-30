@@ -1,6 +1,5 @@
 package MapEditor.GameEvent;
 
-import java.awt.*;
 import java.awt.event.ComponentEvent;
 
 /**
@@ -18,5 +17,6 @@ public class Events {
     public static int clearSelection = ComponentEvent.RESERVED_ID_MAX + 8;
     public static int zoom = ComponentEvent.RESERVED_ID_MAX + 9;
     public static int cellRefactor = ComponentEvent.RESERVED_ID_MAX + 10;
+    public static int currentPlayer = ComponentEvent.RESERVED_ID_MAX + 11;
 
 }

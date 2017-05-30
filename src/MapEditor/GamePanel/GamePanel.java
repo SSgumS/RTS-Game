@@ -55,7 +55,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
     }
 
     private void addBoard() {
-        board = new Board(null, true, 100, Terrain.Grass, Season.Spring);
+        board = new Board(null, true, 75, Terrain.Grass, Season.Spring, 2);
         board.setSize(getWidth(), hud.getY() - menuBar.getHeight());
         board.setLocation(0, menuBar.getHeight());
         board.dispatchEvent(new GameEvent(this, Events.setOrigin));
@@ -93,7 +93,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
         } else if (e.getID() == Events.generateMap) {
             remove(board);
             GenerateMapEvent event = (GenerateMapEvent) e;
-            board = new Board(null, true, event.getSize(), event.getTerrain(), event.getSeason());
+            board = new Board(null, true, event.getSize(), event.getTerrain(), event.getSeason(), event.getPlayerNumber());
             board.setSize(getWidth(), hud.getY() - menuBar.getHeight());
             board.setLocation(0, menuBar.getHeight());
             board.dispatchEvent(new GameEvent(this, Events.setOrigin));

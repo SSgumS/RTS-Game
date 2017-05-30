@@ -6,6 +6,7 @@ import MapEditor.GameEvent.GameEvent;
 import MapEditor.GameEvent.UnitSelectEvent;
 import MapEditor.MainFrame.MainFrame;
 import MapEditor.Map.Cell.Cell;
+import MapEditor.Player.Player;
 import MapEditor.Season.Season;
 import MapEditor.Units.*;
 
@@ -31,13 +32,38 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
     private UnitsInterface kind = Terrain.Grass;
     private double zoom = 1;
     private boolean zoomChanged = false;
+    private Player[] players;
+    private Player currentPlayer;
 
-    public Board(LayoutManager layout, boolean isDoubleBuffered, int mapSize, Terrain terrain, Season season) {
+    public Board(LayoutManager layout, boolean isDoubleBuffered, int mapSize, Terrain terrain, Season season, int playerNumber) {
         super(layout, isDoubleBuffered);
         Addresses.board = this;
 
         this.mapSize = mapSize;
         this.season = season;
+
+        players = new Player[playerNumber];
+        for (int i = 0; i < players.length; i++) {
+            Color color = null;
+
+            switch (i) {
+                case 0:
+                    color = Color.BLUE;
+                    break;
+                case 1:
+                    color = Color.RED;
+                    break;
+                case 2:
+                    color = Color.BLACK;
+                    break;
+                case 3:
+                    color = Color.MAGENTA;
+                    break;
+            }
+
+            players[i] = new Player(color);
+        }
+        currentPlayer = players[0];
 
         cells = new Cell[mapSize][mapSize];
         for(int i = 0; i < mapSize; i++) {
@@ -53,6 +79,19 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
         addMouseWheelListener(this);
 
         setBackground(Color.black);
+    }
+
+    public int getPlayerNumber() {
+        return players.length;
+    }
+
+    public int getCurrentPlayer() {
+        for (int i = 0; i < players.length; i++) {
+            if (players[i].equals(currentPlayer))
+                return i;
+        }
+
+        return 0;
     }
 
     @Override
@@ -105,9 +144,10 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
         if (SwingUtilities.isLeftMouseButton(e)) {
             if ("Terrain".equals(kind.getSource())) {
                 selectedCell.setTerrain(kind);
-                selectedCell.clearKind();
+                if (selectedCell.getKind() != null)
+                    selectedCell.clearKind();
             } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
-                selectedCell.setKind(kind);
+                selectedCell.setKind(kind, currentPlayer);
         }
 
 //        Addresses.panel.repaint();
@@ -126,9 +166,10 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
         if (SwingUtilities.isLeftMouseButton(e)) {
             if ("Terrain".equals(kind.getSource())) {
                 selectedCell.setTerrain(kind);
-                selectedCell.clearKind();
+                if (selectedCell.getKind() != null)
+                    selectedCell.clearKind();
             } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
-                selectedCell.setKind(kind);
+                selectedCell.setKind(kind, currentPlayer);
         }
 
 //        Addresses.panel.repaint();
@@ -190,6 +231,24 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
             originalYo = yo = getHeight()/2;
         } else if (e.getID() == Events.unitSelect)
             kind = ((UnitSelectEvent) e).getUnit();
+        else if (e.getID() == Events.currentPlayer) {
+            JRadioButton source = (JRadioButton) e.getSource();
+
+            switch (source.getText()) {
+                case "Player 1":
+                    currentPlayer = players[0];
+                    break;
+                case "Player 2":
+                    currentPlayer = players[1];
+                    break;
+                case "Player 3":
+                    currentPlayer = players[2];
+                    break;
+                case "Player 4":
+                    currentPlayer = players[3];
+                    break;
+            }
+        }
     }
 
     @Override
@@ -229,5 +288,4 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
     @Override
     public void mouseExited(MouseEvent e) {}
-
 }

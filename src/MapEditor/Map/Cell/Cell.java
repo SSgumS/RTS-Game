@@ -3,6 +3,7 @@ package MapEditor.Map.Cell;
 import MapEditor.Addresses.Addresses;
 import MapEditor.GameEvent.Events;
 import MapEditor.GameEvent.GameEvent;
+import MapEditor.Player.Player;
 import MapEditor.Units.Terrain;
 import MapEditor.Units.UnitsInterface;
 
@@ -16,6 +17,7 @@ import java.util.Vector;
 public class Cell extends JComponent implements Serializable {
 
 	private int i , j;
+	private Player player;
 	private UnitsInterface kind;
 	private UnitsInterface terrain;
 	private Polygon shape;
@@ -185,7 +187,7 @@ public class Cell extends JComponent implements Serializable {
             cell.dispatchEvent(new GameEvent(this, Events.cellRefactor));
     }
 
-    public void setKind(UnitsInterface kind) {
+    public void setKind(UnitsInterface kind, Player player) {
 	    boolean canSet = true;
 
         int size = kind.getSize();
@@ -200,14 +202,28 @@ public class Cell extends JComponent implements Serializable {
             }
 
         if (canSet)
-            for (int k = 0; k < size; k++)
-                for (int l = 0; l < size; l++) {
-                    Cell cell = Addresses.board.cells[i - k][j + l];
-                    cell.kind = kind;
-                    if (cell != this)
-                        cell.parent = this;
-                    relatedCells.add(cell);
-                }
+            if ("Units".equals(kind.getSource()) || "Building".equals(kind.getSource())) {
+                for (int k = 0; k < size; k++)
+                    for (int l = 0; l < size; l++) {
+                        Cell cell = Addresses.board.cells[i - k][j + l];
+                        cell.kind = kind;
+                        cell.player = player;
+                        if (cell != this)
+                            cell.parent = this;
+                        else
+                            this.player.addCell(this);
+                        relatedCells.add(cell);
+                    }
+            } else {
+                for (int k = 0; k < size; k++)
+                    for (int l = 0; l < size; l++) {
+                        Cell cell = Addresses.board.cells[i - k][j + l];
+                        cell.kind = kind;
+                        if (cell != this)
+                            cell.parent = this;
+                        relatedCells.add(cell);
+                    }
+            }
 	}
 
     public UnitsInterface getKind() {
@@ -219,12 +235,18 @@ public class Cell extends JComponent implements Serializable {
     }
 
 	public void clearKind() {
-		if (parent != null) {
+		if (parent != null)
             parent.clearKind();
-            parent = null;
-        } else
-            for (Cell cell : relatedCells)
+        else {
+            if (player != null)
+                player.removeCell(this);
+            for (Cell cell : relatedCells) {
                 cell.kind = null;
+                cell.parent = null;
+                cell.player = null;
+            }
+            relatedCells.removeAllElements();
+        }
 	}
 
     public boolean hasParent() {
@@ -241,6 +263,13 @@ public class Cell extends JComponent implements Serializable {
 
     public BufferedImage getTerrainImage() {
         return image;
+    }
+
+    public Color getColor() {
+	    if (player == null)
+	        return kind.getColor();
+	    else
+	        return player.getColor();
     }
 
     @Override

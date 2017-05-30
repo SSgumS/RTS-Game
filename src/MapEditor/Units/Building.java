@@ -15,7 +15,7 @@ import java.util.Vector;
  */
 public enum Building implements UnitsInterface {
 
-    Town("Town", "resources\\images\\town\\town", 4, Color.BLUE, 143, 351,
+    Town("Town", "resources\\images\\town\\town", 4, 143, 351,
             Terrain.DeepWater, Terrain.Ice, Terrain.Water);
 
     private String name;
@@ -23,13 +23,11 @@ public enum Building implements UnitsInterface {
     private int size;
     private int xHint;
     private int yHint;
-    private Color color;
     private Vector<Terrain> abandonTerrains;
 
-    Building(String name, String dirAddress, int size, Color color, int xHint, int yHint, Terrain... abandonTerrains) {
+    Building(String name, String dirAddress, int size, int xHint, int yHint, Terrain... abandonTerrains) {
         this.name = name;
         this.size = size;
-        this.color = color;
         this.xHint = xHint;
         this.yHint = yHint;
         this.abandonTerrains = new Vector<>(Arrays.asList(abandonTerrains));
@@ -78,7 +76,7 @@ public enum Building implements UnitsInterface {
 
     @Override
     public Color getColor() {
-        return color;
+        return null;
     }
 
     @Override
