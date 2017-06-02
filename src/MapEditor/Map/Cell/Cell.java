@@ -24,7 +24,7 @@ public class Cell extends JComponent implements Serializable {
 	private Cell parent;
 	private int[] originalXs, originalYs;
 	private Vector <Cell> relatedCells = new Vector<>();
-	private BufferedImage image;
+	private transient BufferedImage image;
 
 	public Cell(int i, int j, int[] xs, int[] ys, UnitsInterface terrain) {
 	    this.i = i;
@@ -36,6 +36,19 @@ public class Cell extends JComponent implements Serializable {
 		BufferedImage bufferedImage = terrain.getImage(i, j, Addresses.board.season);
 		image = new BufferedImage(bufferedImage.getColorModel(), bufferedImage.copyData(null), bufferedImage.isAlphaPremultiplied(), null);
 	}
+
+    private Cell(int i, int j, Player player, UnitsInterface kind, UnitsInterface terrain, Cell parent, int[] originalXs, int[] originalYs, Vector<Cell> relatedCells, BufferedImage image) {
+        this.i = i;
+        this.j = j;
+        this.player = player;
+        this.kind = kind;
+        this.terrain = terrain;
+        this.parent = parent;
+        this.originalXs = originalXs;
+        this.originalYs = originalYs;
+        this.relatedCells = relatedCells;
+        this.image = image;
+    }
 
     public Polygon getShape() {
 		return shape;
@@ -68,14 +81,30 @@ public class Cell extends JComponent implements Serializable {
         BufferedImage bufferedImage = terrain.getImage(i, j, Addresses.board.season);
         image = new BufferedImage(bufferedImage.getColorModel(), bufferedImage.copyData(null), bufferedImage.isAlphaPremultiplied(), null);
 
-        createImageInDir(-1, -1, width, height, bufferedImages, !isEventDispatched);
-        createImageInDir(-1, 0, width, height, bufferedImages, !isEventDispatched);
-        createImageInDir(-1, 1, width, height, bufferedImages, !isEventDispatched);
-        createImageInDir(0, -1, width, height, bufferedImages, !isEventDispatched);
-        createImageInDir(0, 1, width, height, bufferedImages, !isEventDispatched);
-        createImageInDir(1, -1, width, height, bufferedImages, !isEventDispatched);
-        createImageInDir(1, 0, width, height, bufferedImages, !isEventDispatched);
-        createImageInDir(1, 1, width, height, bufferedImages, !isEventDispatched);
+        try {
+            createImageInDir(-1, -1, width, height, bufferedImages, !isEventDispatched);
+        } catch (ArrayIndexOutOfBoundsException ignored) {}
+        try {
+            createImageInDir(-1, 0, width, height, bufferedImages, !isEventDispatched);
+        } catch (ArrayIndexOutOfBoundsException ignored) {}
+        try {
+            createImageInDir(-1, 1, width, height, bufferedImages, !isEventDispatched);
+        } catch (ArrayIndexOutOfBoundsException ignored) {}
+        try {
+            createImageInDir(0, -1, width, height, bufferedImages, !isEventDispatched);
+        } catch (ArrayIndexOutOfBoundsException ignored) {}
+        try {
+            createImageInDir(0, 1, width, height, bufferedImages, !isEventDispatched);
+        } catch (ArrayIndexOutOfBoundsException ignored) {}
+        try {
+            createImageInDir(1, -1, width, height, bufferedImages, !isEventDispatched);
+        } catch (ArrayIndexOutOfBoundsException ignored) {}
+        try {
+            createImageInDir(1, 0, width, height, bufferedImages, !isEventDispatched);
+        } catch (ArrayIndexOutOfBoundsException ignored) {}
+        try {
+            createImageInDir(1, 1, width, height, bufferedImages, !isEventDispatched);
+        } catch (ArrayIndexOutOfBoundsException ignored) {}
 
         Graphics g = image.getGraphics();
         for (int k = 5; k >= 0; k--)
@@ -84,9 +113,8 @@ public class Cell extends JComponent implements Serializable {
     }
 
     private void createImageInDir(int ii, int jj, int width, int height, BufferedImage[] bufferedImages, boolean isElseValid) {
-        Cell cell;
+        Cell cell = Addresses.board.cells[i + ii][j + jj];
 
-        cell = Addresses.board.cells[i + ii][j + jj];
         if (((Terrain) cell.getTerrain()).getPriority() < ((Terrain) terrain).getPriority()) {
             BufferedImage image = cell.getTerrain().getImage(i, j, Addresses.board.season);
 
@@ -187,7 +215,7 @@ public class Cell extends JComponent implements Serializable {
             cell.dispatchEvent(new GameEvent(this, Events.cellRefactor));
     }
 
-    public void setKind(UnitsInterface kind, Player player) {
+    public void setKind(UnitsInterface kind, Player player, boolean isLoaded) {
 	    boolean canSet = true;
 
         int size = kind.getSize();
@@ -201,7 +229,13 @@ public class Cell extends JComponent implements Serializable {
                 }
             }
 
-        if (canSet)
+        if (canSet) {
+            if (!isLoaded) {
+                Addresses.undo.push(clone());
+                if (!Addresses.redo.isEmpty())
+                    Addresses.redo.removeAll();
+            }
+
             if ("Units".equals(kind.getSource()) || "Building".equals(kind.getSource())) {
                 for (int k = 0; k < size; k++)
                     for (int l = 0; l < size; l++) {
@@ -224,6 +258,7 @@ public class Cell extends JComponent implements Serializable {
                         relatedCells.add(cell);
                     }
             }
+        }
 	}
 
     public UnitsInterface getKind() {
@@ -234,17 +269,18 @@ public class Cell extends JComponent implements Serializable {
         return kind != null;
     }
 
-	public void clearKind() {
+	public void clearKind(boolean isLoaded) {
 		if (parent != null)
-            parent.clearKind();
+            parent.clearKind(false);
         else {
             if (player != null)
                 player.removeCell(this);
-            for (Cell cell : relatedCells) {
-                cell.kind = null;
-                cell.parent = null;
-                cell.player = null;
-            }
+            for (Cell cell : relatedCells)
+                if (!isLoaded || cell != this) {
+                    cell.kind = null;
+                    cell.parent = null;
+                    cell.player = null;
+                }
             relatedCells.removeAllElements();
         }
 	}
@@ -265,11 +301,34 @@ public class Cell extends JComponent implements Serializable {
         return image;
     }
 
+    public void setTerrainImage(BufferedImage image) {
+        this.image = image;
+    }
+
     public Color getColor() {
 	    if (player == null)
 	        return kind.getColor();
 	    else
 	        return player.getColor();
+    }
+
+    public int getI() {
+        return i;
+    }
+
+    public int getJ() {
+        return j;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    @Override
+    public Cell clone() {
+	    Cell cell = new Cell(i, j, player, kind, terrain, parent, originalXs, originalYs, relatedCells, image);
+	    cell.shape = shape;
+	    return cell;
     }
 
     @Override

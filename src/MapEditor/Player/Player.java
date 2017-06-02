@@ -1,15 +1,15 @@
 package MapEditor.Player;
 
 import MapEditor.Map.Cell.Cell;
-import MapEditor.Units.UnitsInterface;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
  * Created by Saeed on 5/30/2017.
  */
-public class Player {
+public class Player implements Serializable {
 
     private Color color;
     private Vector <Cell> cells = new Vector<>();

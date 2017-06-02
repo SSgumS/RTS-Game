@@ -3,7 +3,6 @@ package MapEditor.HUD.ActionSection.Panels;
 import MapEditor.Addresses.Addresses;
 import MapEditor.GameEvent.Events;
 import MapEditor.GameEvent.UnitSelectEvent;
-import MapEditor.HUD.ActionSection.ActionSection;
 import MapEditor.Units.*;
 import MapEditor.Units.Terrain;
 
@@ -13,10 +12,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Vector;
 
 /**
@@ -59,10 +55,11 @@ public class Units extends JPanel implements ListSelectionListener, ChangeListen
 
         tabbedPane.addChangeListener(this);
 
-        unitsScrollPane.addMouseMotionListener(Addresses.board);
-        buildingScrollPane.addMouseMotionListener(Addresses.board);
-        terrainScrollPane.addMouseMotionListener(Addresses.board);
-        othersScrollPane.addMouseMotionListener(Addresses.board);
+        unit.addMouseMotionListener(Addresses.panel);
+        building.addMouseMotionListener(Addresses.panel);
+        terrain.addMouseMotionListener(Addresses.panel);
+        other.addMouseMotionListener(Addresses.panel);
+        tabbedPane.addMouseMotionListener(Addresses.panel);
 
         add(tabbedPane);
     }

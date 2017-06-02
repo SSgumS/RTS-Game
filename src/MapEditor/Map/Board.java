@@ -8,6 +8,8 @@ import MapEditor.MainFrame.MainFrame;
 import MapEditor.Map.Cell.Cell;
 import MapEditor.Player.Player;
 import MapEditor.Season.Season;
+import MapEditor.Stack.Redo;
+import MapEditor.Stack.Undo;
 import MapEditor.Units.*;
 
 import javax.swing.*;
@@ -18,7 +20,7 @@ import java.awt.image.BufferedImage;
 /**
  * Created by Saeed on 5/23/2017.
  */
-public class Board extends JPanel implements Runnable, MouseListener, MouseMotionListener, MouseWheelListener {
+public class Board extends JPanel implements Runnable, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
 
     private boolean isThreadRunning = false;
     public int mapSize;
@@ -34,10 +36,14 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
     private boolean zoomChanged = false;
     private Player[] players;
     private Player currentPlayer;
+    private Undo undo = new Undo();
+    private Redo redo = new Redo();
 
     public Board(LayoutManager layout, boolean isDoubleBuffered, int mapSize, Terrain terrain, Season season, int playerNumber) {
         super(layout, isDoubleBuffered);
         Addresses.board = this;
+        Addresses.undo = undo;
+        Addresses.redo = redo;
 
         this.mapSize = mapSize;
         this.season = season;
@@ -74,9 +80,19 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
             }
         }
 
+        FocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
+            if (Addresses.frame.isFocused()) {
+                FocusManager.getCurrentKeyboardFocusManager().redispatchEvent(Addresses.board, e);
+                return true;
+            }
+
+            return false;
+        });
+
         addMouseListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(this);
+        addKeyListener(this);
 
         setBackground(Color.black);
     }
@@ -102,24 +118,26 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
         for (int j = mapSize - 1; j >= 0; j--) {
             for (int i = 0; i < mapSize; i++) {
-                if (zoomChanged)
-                    cells[i][j].zoom(zoom);
+                try {
+                    if (zoomChanged)
+                        cells[i][j].zoom(zoom);
 
-                if (cells[i][j].getOriginX() + xo > -5*width && cells[i][j].getOriginX() + xo < getWidth() + 5*width && cells[i][j].getOriginY() + yo > -5*height && cells[i][j].getOriginY() + yo < getHeight() + 5*height) {
-                    image = cells[i][j].getTerrainImage();
-                    g.drawImage(image, cells[i][j].getOriginX() + xo, cells[i][j].getOriginY() + yo, (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
+                    if (cells[i][j].getOriginX() + xo > -5*width && cells[i][j].getOriginX() + xo < getWidth() + 5*width && cells[i][j].getOriginY() + yo > -5*height && cells[i][j].getOriginY() + yo < getHeight() + 5*height) {
+                        image = cells[i][j].getTerrainImage();
+                        g.drawImage(image, cells[i][j].getOriginX() + xo, cells[i][j].getOriginY() + yo, (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
 
-                    try {
-                        if (!cells[i][j].hasParent()) {
-                            UnitsInterface kind = cells[i][j].getKind();
-                            image = kind.getImage(i, j, season);
-                            g.drawImage(image, (int) (cells[i][j].getOriginX() - zoom*kind.getXHint() + xo), (int) (cells[i][j].getOriginY() - zoom*kind.getYHint() + yo), (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
-                        }
-                    } catch (NullPointerException ignored) {}
+                        try {
+                            if (!cells[i][j].hasParent()) {
+                                UnitsInterface kind = cells[i][j].getKind();
+                                image = kind.getImage(i, j, season);
+                                g.drawImage(image, (int) (cells[i][j].getOriginX() - zoom*kind.getXHint() + xo), (int) (cells[i][j].getOriginY() - zoom*kind.getYHint() + yo), (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
+                            }
+                        } catch (NullPointerException ignored) {}
 
-                    if (cells[i][j].getShape().contains(Addresses.panel.mouseX - xo, Addresses.panel.mouseY - getY() - yo))
-                        selectedCell = cells[i][j];
-                }
+                        if (cells[i][j].getShape().contains(Addresses.panel.mouseX - xo, Addresses.panel.mouseY - getY() - yo))
+                            selectedCell = cells[i][j];
+                    }
+                } catch (NullPointerException ignored) {}
             }
         }
 
@@ -143,11 +161,15 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
     public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
             if ("Terrain".equals(kind.getSource())) {
+                undo.push(selectedCell.clone());
+                if (!redo.isEmpty())
+                    redo.removeAll();
+
                 selectedCell.setTerrain(kind);
                 if (selectedCell.getKind() != null)
-                    selectedCell.clearKind();
+                    selectedCell.clearKind(false);
             } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
-                selectedCell.setKind(kind, currentPlayer);
+                selectedCell.setKind(kind, currentPlayer, false);
         }
 
 //        Addresses.panel.repaint();
@@ -165,11 +187,15 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
         if (SwingUtilities.isLeftMouseButton(e)) {
             if ("Terrain".equals(kind.getSource())) {
+                undo.push(selectedCell.clone());
+                if (!redo.isEmpty())
+                    redo.removeAll();
+
                 selectedCell.setTerrain(kind);
                 if (selectedCell.getKind() != null)
-                    selectedCell.clearKind();
+                    selectedCell.clearKind(false);
             } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
-                selectedCell.setKind(kind, currentPlayer);
+                selectedCell.setKind(kind, currentPlayer, false);
         }
 
 //        Addresses.panel.repaint();
@@ -190,7 +216,7 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
     @Override
     public synchronized void run() {
-        while(Addresses.panel.mouseY == 0 || Addresses.panel.mouseY == MainFrame.height - 1 || Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1 || yo > -mapSize*height/2 + getHeight() || xo > -mapSize*width + getWidth()) {
+        while((Addresses.panel.mouseY == 0 || Addresses.panel.mouseY == MainFrame.height - 1 || Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1) && yo > -mapSize*height/2 + getHeight() && xo > -mapSize*width + getWidth()) {
             if(Addresses.panel.mouseY == 0 && yo < mapSize*height/2) {
                 yo += zoom*48;
                 originalYo += 48;
@@ -248,6 +274,9 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
                     currentPlayer = players[3];
                     break;
             }
+        } else if (e.getID() == Events.load) {
+            Addresses.undo = undo;
+            Addresses.redo = redo;
         }
     }
 
@@ -278,6 +307,46 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
     }
 
     @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
+            if (e.isShiftDown() && !redo.isEmpty()) {
+                Cell cell = redo.pop();
+                int ii = cell.getI();
+                int jj = cell.getJ();
+                undo.push(cells[ii][jj]);
+                if (cells[ii][jj].getKind() != null)
+                    cells[ii][jj].clearKind(true);
+                if (cell.getKind() != null)
+                    cell.setKind(cell.getKind(), cell.getPlayer(), true);
+                cells[ii][jj] = cell;
+
+                for (int i = -1; i <= 1; i++)
+                    for (int j = -1; j <= 1; j++)
+                        if (i != 0 || j != 0)
+                            cells[cell.getI() + i][cell.getJ() + j].dispatchEvent(new GameEvent(cell, Events.cellRefactor));
+            } else if (!e.isShiftDown() && !undo.isEmpty()) {
+                Cell cell = undo.pop();
+                int ii = cell.getI();
+                int jj = cell.getJ();
+                redo.push(cells[ii][jj]);
+                if (cells[ii][jj].getKind() != null)
+                    cells[ii][jj].clearKind(true);
+                if (cell.getKind() != null)
+                    cell.setKind(cell.getKind(), cell.getPlayer(), true);
+                cells[ii][jj] = cell;
+
+                for (int i = -1; i <= 1; i++)
+                    for (int j = -1; j <= 1; j++)
+                        if (i != 0 || j != 0){
+                            try {
+                                cells[cell.getI() + i][cell.getJ() + j].dispatchEvent(new GameEvent(this, Events.cellRefactor));
+                            } catch (ArrayIndexOutOfBoundsException ignored) {}
+                        }
+            }
+        }
+    }
+
+    @Override
     public void mousePressed(MouseEvent e) {}
 
     @Override
@@ -288,4 +357,11 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
     @Override
     public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyReleased(KeyEvent e) {}
+
 }

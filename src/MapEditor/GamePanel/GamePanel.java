@@ -17,14 +17,12 @@ import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
 
 /**
  * Created by Saeed on 5/15/2017.
  */
 public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
 
-    private BufferedImage dbImage;
     private MenuBar menuBar;
     private Board board;
     private HUD hud;
@@ -102,6 +100,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
         } else if (e.getID() == Events.load) {
             remove(board);
             board = Addresses.board;
+            board.dispatchEvent(e);
             hud.dispatchEvent(new GameEvent(board, Events.boardCreated));
             add(board);
         } else if (e.getID() == Events.clearSelection)
@@ -120,21 +119,21 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
     @Override
     public void mouseDragged(MouseEvent e) {}
 
-    private void render() {
-        dbImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-        Graphics g = dbImage.getGraphics();
+//    private void render() {
+//        dbImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+//        Graphics g = dbImage.getGraphics();
+//
+//        g.drawImage(hud.getImage(), hud.getX(), hud.getY(), null);
+//        g.drawImage(menuBar.getImage(), menuBar.getX(), menuBar.getY(), null);
+//    }
 
-        g.drawImage(hud.getImage(), hud.getX(), hud.getY(), null);
-        g.drawImage(menuBar.getImage(), menuBar.getX(), menuBar.getY(), null);
-    }
-
-    private void paint() {
-        Graphics g = getGraphics();
-
-        g.drawImage(dbImage, 0, 0, null);
-        paintComponents(g);
-
-        g.dispose();
-    }
+//    private void paint() {
+//        Graphics g = getGraphics();
+//
+//        g.drawImage(dbImage, 0, 0, null);
+//        paintComponents(g);
+//
+//        g.dispose();
+//    }
 
 }

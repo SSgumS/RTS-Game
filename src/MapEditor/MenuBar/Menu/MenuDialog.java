@@ -3,12 +3,8 @@ package MapEditor.MenuBar.Menu;
 import MapEditor.Cursor.Cursors;
 import MapEditor.MainFrame.MainFrame;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by Saeed on 5/22/2017.

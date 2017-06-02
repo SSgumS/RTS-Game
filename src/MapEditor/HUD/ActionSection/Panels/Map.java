@@ -5,7 +5,6 @@ import MapEditor.Button.RegularButton;
 import MapEditor.GameEvent.Events;
 import MapEditor.GameEvent.GameEvent;
 import MapEditor.GameEvent.GenerateMapEvent;
-import MapEditor.HUD.ActionSection.ActionSection;
 
 import javax.swing.*;
 import java.awt.*;

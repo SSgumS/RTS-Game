@@ -2,7 +2,6 @@ package MapEditor.GameEvent;
 
 import MapEditor.Season.Season;
 import MapEditor.Units.Terrain;
-import MapEditor.Units.UnitsInterface;
 
 import java.awt.*;
 import java.awt.event.ComponentEvent;

@@ -1,7 +1,5 @@
 package MapEditor.HUD;
 
-import MapEditor.Button.*;
-import MapEditor.Button.Button;
 import MapEditor.GameEvent.Events;
 import MapEditor.HUD.ActionSection.ActionSection;
 import MapEditor.HUD.MiniMap.MiniMap;

@@ -3,8 +3,6 @@ package MapEditor.HUD.MiniMap;
 import MapEditor.Addresses.Addresses;
 import MapEditor.Map.Board;
 import MapEditor.Map.Cell.Cell;
-import MapEditor.Units.Terrain;
-import MapEditor.Units.UnitsInterface;
 
 import javax.swing.*;
 import java.awt.*;

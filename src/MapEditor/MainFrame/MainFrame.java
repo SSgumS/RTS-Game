@@ -6,7 +6,6 @@ import MapEditor.GamePanel.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
 import java.awt.event.WindowEvent;
 
 /**
