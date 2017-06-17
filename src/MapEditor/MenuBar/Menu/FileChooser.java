@@ -1,10 +1,13 @@
 package MapEditor.MenuBar.Menu;
 
-import MapEditor.Addresses.Addresses;
-import MapEditor.GameEvent.Events;
-import MapEditor.GameEvent.GameEvent;
+import Addresses.Addresses;
+import GameEvent.Events;
+import GameEvent.GameEvent;
+import Map.GameCell;
 import MapEditor.Map.Board;
-import MapEditor.Map.Cell.Cell;
+import MapEditor.Map.Cell.UndoRedoCell;
+import Units.Resource.Resource;
+import Units.Units;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -53,17 +56,26 @@ public class FileChooser extends JFileChooser implements ActionListener {
             zipOut.putNextEntry(new ZipEntry("map"));
             ObjectOutputStream out = new ObjectOutputStream(zipOut);
             out.writeObject(Addresses.board);
+            out.writeObject(Units.getUnits());
+            out.writeObject(Resource.getResources());
             out.flush();
 
-            Vector<Cell> cells = Addresses.undo.getCells();
+            Vector<UndoRedoCell> cells = new Vector<>();
+            for (Object object : Addresses.undo.getStack())
+                if (object instanceof UndoRedoCell)
+                    cells.addElement((UndoRedoCell) object);
             for (int i = 0; i < cells.size(); i++) {
                 zipOut.putNextEntry(new ZipEntry("undo image " + i + ".png"));
-                ImageIO.write(cells.elementAt(i).getTerrainImage(), "png", zipOut);
+                ImageIO.write(cells.elementAt(i).getCell().getTerrainImage(), "png", zipOut);
             }
-            cells = Addresses.redo.getCells();
+
+            cells = new Vector<>();
+            for (Object object : Addresses.redo.getStack())
+                if (object instanceof UndoRedoCell)
+                    cells.addElement((UndoRedoCell) object);
             for (int i = 0; i < cells.size(); i++) {
                 zipOut.putNextEntry(new ZipEntry("redo image " + i + ".png"));
-                ImageIO.write(cells.elementAt(i).getTerrainImage(), "png", zipOut);
+                ImageIO.write(cells.elementAt(i).getCell().getTerrainImage(), "png", zipOut);
             }
 
             out.close();
@@ -87,18 +99,27 @@ public class FileChooser extends JFileChooser implements ActionListener {
             Addresses.board = (Board) in.readObject();
             Addresses.panel.dispatchEvent(new GameEvent(this, Events.load));
             Addresses.panel.dispatchEvent(new GameEvent(this, Events.clearSelection));
+            Units.setUnits((Vector<Units>) in.readObject());
+            Resource.setResources((Vector<Resource>) in.readObject());
 
-            Cell[][] mapCells = Addresses.board.cells;
+            GameCell[][] mapCells = Addresses.board.cells;
             for (int i = 0; i < mapCells.length; i++)
                 for (int j = 0; j < mapCells.length; j++)
                     mapCells[i][j].dispatchEvent(new GameEvent(this, Events.cellRefactor));
 
-            Vector<Cell> cells = Addresses.undo.getCells();
+            Vector<UndoRedoCell> cells = new Vector<>();
+            for (Object object : Addresses.undo.getStack())
+                if (object instanceof UndoRedoCell)
+                    cells.addElement((UndoRedoCell) object);
             for (int i = 0; i < cells.size(); i++)
-                cells.elementAt(i).setTerrainImage(ImageIO.read(zipFile.getInputStream(zipFile.getEntry("undo image " + i + ".png"))));
-            cells = Addresses.redo.getCells();
+                cells.elementAt(i).getCell().setTerrainImage(ImageIO.read(zipFile.getInputStream(zipFile.getEntry("undo image " + i + ".png"))));
+
+            cells = new Vector<>();
+            for (Object object : Addresses.redo.getStack())
+                if (object instanceof UndoRedoCell)
+                    cells.addElement((UndoRedoCell) object);
             for (int i = 0; i < cells.size(); i++)
-                cells.elementAt(i).setTerrainImage(ImageIO.read(zipFile.getInputStream(zipFile.getEntry("redo image " + i + ".png"))));
+                cells.elementAt(i).getCell().setTerrainImage(ImageIO.read(zipFile.getInputStream(zipFile.getEntry("redo image " + i + ".png"))));
 
             in.close();
             zipFile.close();

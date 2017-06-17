@@ -1,6 +1,6 @@
 package MapEditor.HUD;
 
-import MapEditor.GameEvent.Events;
+import GameEvent.Events;
 import MapEditor.HUD.ActionSection.ActionSection;
 import MapEditor.HUD.MiniMap.MiniMap;
 import MapEditor.MainFrame.MainFrame;
@@ -39,16 +39,6 @@ public class HUD extends JPanel {
 
         add(miniMap);
         add(actionSection);
-    }
-
-    public BufferedImage getImage() {
-        BufferedImage dbImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-        Graphics g = dbImage.getGraphics();
-
-        g.drawImage(image, 0, 0, null);
-        paintComponents(g);
-
-        return dbImage;
     }
 
     @Override

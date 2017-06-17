@@ -1,10 +1,10 @@
 package MapEditor.HUD.ActionSection.Panels;
 
-import MapEditor.Addresses.Addresses;
+import Addresses.Addresses;
 import MapEditor.Button.RegularButton;
-import MapEditor.GameEvent.Events;
-import MapEditor.GameEvent.GameEvent;
-import MapEditor.GameEvent.GenerateMapEvent;
+import GameEvent.Events;
+import GameEvent.GameEvent;
+import GameEvent.GenerateMapEvent;
 
 import javax.swing.*;
 import java.awt.*;

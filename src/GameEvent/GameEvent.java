@@ -1,4 +1,4 @@
-package MapEditor.GameEvent;
+package GameEvent;
 
 import java.awt.*;
 import java.awt.event.ComponentEvent;

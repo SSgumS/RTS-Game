@@ -1,8 +1,9 @@
 package MapEditor.HUD.MiniMap;
 
-import MapEditor.Addresses.Addresses;
-import MapEditor.Map.Board;
-import MapEditor.Map.Cell.Cell;
+import Addresses.Addresses;
+import Map.GameBoard;
+import Map.GameCell;
+import Units.Units;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +16,7 @@ import java.awt.geom.Rectangle2D;
  */
 public class MiniMap extends JPanel {
 
-    private Board board;
+    private GameBoard board;
     private double width;
     private double height;
     private double rectWidth;
@@ -36,17 +37,27 @@ public class MiniMap extends JPanel {
 
         for (int i = 0; i < board.mapSize; i++) {
             for (int j = 0; j < board.mapSize; j++) {
-                Cell cell = board.cells[i][j];
-
-                g2D.setColor(cell.getTerrain().getColor());
+                GameCell cell = board.cells[i][j];
+//                try {
+                g2D.setColor(cell.getColor());
                 g2D.fill(paths[i][j]);
-
-                try {
-                    g2D.setColor(cell.getColor());
-                    g2D.fill(paths[i][j]);
-                } catch (NullPointerException ignored) {}
+//                } catch (NullPointerException ignored) {}
             }
         }
+
+            for (Units unit : Units.getUnits()) {
+                g2D.setColor(unit.getColor());
+
+                Polygon shape = unit.getShape();
+                Path2D.Double path = new Path2D.Double();
+                path.moveTo((double) shape.xpoints[0]*width/board.width, (double) shape.ypoints[0]*width/board.width + getHeight()/2);
+                path.lineTo((double) shape.xpoints[1]*width/board.width, (double) shape.ypoints[1]*width/board.width + getHeight()/2);
+                path.lineTo((double) shape.xpoints[2]*width/board.width, (double) shape.ypoints[2]*width/board.width + getHeight()/2);
+                path.lineTo((double) shape.xpoints[3]*width/board.width, (double) shape.ypoints[3]*width/board.width + getHeight()/2);
+                path.closePath();
+
+                g2D.fill(path);
+            }
 
         Rectangle2D.Double rect = new Rectangle2D.Double((double) -board.xo*width/board.width, (double) -board.yo*height/board.height + getHeight()/2, rectWidth, rectHeight);
         g2D.setColor(Color.WHITE);

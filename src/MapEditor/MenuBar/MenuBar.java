@@ -1,9 +1,9 @@
 package MapEditor.MenuBar;
 
-import MapEditor.Addresses.Addresses;
+import Addresses.Addresses;
 import MapEditor.Button.Button;
-import MapEditor.GameEvent.Events;
-import MapEditor.GameEvent.GameEvent;
+import GameEvent.Events;
+import GameEvent.GameEvent;
 import MapEditor.MenuBar.EditorButtons.EditorButtons;
 
 import javax.imageio.ImageIO;
@@ -52,16 +52,6 @@ public class MenuBar extends JPanel implements ActionListener {
         menuButton.setLocation(getWidth() - 10 - menuButton.getWidth(), 3);
         menuButton.addActionListener(this);
         add(menuButton);
-    }
-
-    public BufferedImage getImage() {
-        BufferedImage dbImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-        Graphics g = dbImage.getGraphics();
-
-        g.drawImage(image, 0, 0, null);
-        paintAll(g);
-
-        return dbImage;
     }
 
     @Override

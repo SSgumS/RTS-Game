@@ -1,11 +1,11 @@
-package MapEditor.GameEvent;
+package GameEvent;
 
-import MapEditor.Season.Season;
-import MapEditor.Units.Terrain;
+import Addresses.Addresses;
+import Season.Season;
+import Terrain.Terrain;
 
 import java.awt.*;
 import java.awt.event.ComponentEvent;
-import java.util.Vector;
 
 /**
  * Created by Saeed on 5/25/2017.
@@ -31,19 +31,11 @@ public class GenerateMapEvent extends ComponentEvent {
     private String terrain;
     private String season;
 
-    private Vector <Terrain> allTerrains = new Vector<>();
-    private Vector <String> allTerrainsStr = new Vector<>();
-
     public GenerateMapEvent(Component source, int id, String size, String terrain, String season) {
         super(source, id);
         this.size = size;
         this.terrain = terrain;
         this.season = season;
-
-        for (Terrain unit : Terrain.values()) {
-            allTerrains.add(unit);
-            allTerrainsStr.add(unit.getName());
-        }
     }
 
     public int getSize() {
@@ -59,9 +51,7 @@ public class GenerateMapEvent extends ComponentEvent {
     }
 
     public Terrain getTerrain() {
-        Terrain unit = allTerrains.elementAt(allTerrainsStr.indexOf(terrain));
-
-        return unit;
+        return (Terrain) Addresses.unitsHashMap.get(terrain);
     }
 
     public Season getSeason() {

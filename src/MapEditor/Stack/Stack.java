@@ -1,7 +1,5 @@
 package MapEditor.Stack;
 
-import MapEditor.Map.Cell.Cell;
-
 import java.io.*;
 import java.util.Vector;
 
@@ -10,46 +8,47 @@ import java.util.Vector;
  */
 public class Stack implements Serializable {
 
-    Vector<Cell> cells = new Vector<>();
+    Vector<Object> stack = new Vector<>();
 
-    public void push(Cell cell) {
-        cells.addElement(cell);
+    public void push(Object object) {
+        stack.addElement(object);
 
-        if (cells.size() > 10)
-            cells.removeElementAt(0);
+        if (stack.size() > 10)
+            stack.removeElementAt(0);
     }
 
     public boolean isEmpty() {
-        return cells.size() == 0;
+        return stack.size() == 0;
     }
 
     public void removeAll() {
-        cells.removeAllElements();
+        if (!isEmpty())
+            stack.removeAllElements();
     }
 
-    public Vector<Cell> getCells() {
-        return cells;
+    public Vector<Object> getStack() {
+        return stack;
     }
 
 //    private void writeObject(ObjectOutputStream out) throws IOException {
 //        //TODO: chera zamane write kardane image (ya shayadam read kardanesh) (zamani ke tooye ye file hamashoon ro mikhastim write konim) ghati mikard o dota darmiyoon null mindakht o dorost read o write nemikard?
 //        out.defaultWriteObject();
-////        int i = 0;
-////        for (Cell cell : cells) {
-////            i++;
-////            File file = new File(path + i + ".png");
-////            ImageIO.write(cell.getTerrainImage(), "png", file);
-////        }
+//        int i = 0;
+//        for (Cell cell : cells) {
+//            i++;
+//            File file = new File(path + i + ".png");
+//            ImageIO.write(cell.getTerrainImage(), "png", file);
+//        }
 //    }
 
 //    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 //        in.defaultReadObject();
-////        int i = 0;
-////        for (Cell cell : cells) {
-////            i++;
-////            File file = new File(path + i + ".png");
-////            cell.setTerrainImage(ImageIO.read(file));
-////        }
+//        int i = 0;
+//        for (Cell cell : cells) {
+//            i++;
+//            File file = new File(path + i + ".png");
+//            cell.setTerrainImage(ImageIO.read(file));
+//        }
 //    }
 
 }

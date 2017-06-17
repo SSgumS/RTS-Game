@@ -1,8 +1,9 @@
 package MapEditor.HUD.ActionSection.Panels;
 
-import MapEditor.Addresses.Addresses;
-import MapEditor.GameEvent.Events;
-import MapEditor.GameEvent.GameEvent;
+import Addresses.Addresses;
+import GameEvent.Events;
+import GameEvent.GameEvent;
+import MapEditor.Map.Board;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,6 +48,10 @@ public class Player extends JPanel implements ActionListener {
         player2.setBackground(Color.RED);
         player3.setBackground(Color.BLACK);
         player4.setBackground(Color.MAGENTA);
+        player1.setForeground(Color.WHITE);
+        player2.setForeground(Color.WHITE);
+        player3.setForeground(Color.WHITE);
+        player4.setForeground(Color.WHITE);
     }
 
     private void setSizes() {
@@ -110,7 +115,7 @@ public class Player extends JPanel implements ActionListener {
 
         removeAll();
 
-        switch (Addresses.board.getPlayerNumber()) {
+        switch (((Board) Addresses.board).getPlayersNumber()) {
             case 2:
                 add(player1);
                 add(player2);
@@ -129,6 +134,6 @@ public class Player extends JPanel implements ActionListener {
         }
 
         playersGroup.clearSelection();
-        players[Addresses.board.getCurrentPlayer()].setSelected(true);
+        players[((Board) Addresses.board).getCurrentPlayerNumber()].setSelected(true);
     }
 }

@@ -1,4 +1,4 @@
-package MapEditor.Season;
+package Season;
 
 /**
  * Created by Saeed on 5/25/2017.

@@ -1,14 +1,15 @@
-package MapEditor.GameEvent;
+package GameEvent;
 
-import MapEditor.Units.UnitsInterface;
+import Map.GameCell;
+import MapEditor.Map.Cell.UndoRedoCell;
 
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 
 /**
- * Created by Saeed on 5/25/2017.
+ * Created by Saeed on 6/8/2017.
  */
-public class UnitSelectEvent extends ComponentEvent {
+public class SetKindEvent extends ComponentEvent {
 
     /**
      * Constructs a <code>ComponentEvent</code> object.
@@ -25,15 +26,22 @@ public class UnitSelectEvent extends ComponentEvent {
      * @see #getID()
      */
 
-    private UnitsInterface unit;
+    private GameCell cell;
+    private UndoRedoCell undoRedoCell;
 
-    public UnitSelectEvent(Component source, int id, UnitsInterface unit) {
+    public SetKindEvent(Component source, int id, GameCell cell, UndoRedoCell undoRedoCell) {
         super(source, id);
-        this.unit = unit;
+
+        this.cell = cell;
+        this.undoRedoCell = undoRedoCell;
     }
 
-    public UnitsInterface getUnit() {
-        return unit;
+    public GameCell getCell() {
+        return cell;
+    }
+
+    public UndoRedoCell getUndoRedoCell() {
+        return undoRedoCell;
     }
 
 }

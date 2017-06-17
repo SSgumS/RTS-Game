@@ -1,6 +1,6 @@
 package MapEditor.Button;
 
-import MapEditor.Addresses.Addresses;
+import Addresses.Addresses;
 
 import javax.swing.*;
 import java.awt.*;

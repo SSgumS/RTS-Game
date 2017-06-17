@@ -12,13 +12,21 @@ import java.io.IOException;
  */
 public class BackPanel extends JPanel {
 
-    private BufferedImage image;
+    private BufferedImage menuBar;
+    private BufferedImage hud;
 
     public BackPanel(LayoutManager layout) {
         super(layout);
 
+//        try {
+//            image = ImageIO.read(new File("resources\\images\\ui\\background\\editor\\background.png"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
         try {
-            image = ImageIO.read(new File("resources\\images\\ui\\background\\background.png"));
+            menuBar = ImageIO.read(new File("resources\\images\\ui\\menu bar\\map editor\\menu bar.png"));
+            hud = ImageIO.read(new File("resources\\images\\ui\\HUD\\HUD.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -28,7 +36,8 @@ public class BackPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.drawImage(image, 0, 0, null);
+        g.drawImage(menuBar, 0, 0, null);
+        g.drawImage(hud, 0, MainFrame.height - hud.getHeight(), null);
     }
 
 }

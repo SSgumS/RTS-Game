@@ -1,9 +1,9 @@
 package MapEditor.MenuBar.EditorButtons;
 
-import MapEditor.Addresses.Addresses;
+import Addresses.Addresses;
 import MapEditor.Button.Button;
-import MapEditor.GameEvent.Events;
-import MapEditor.GameEvent.GameEvent;
+import GameEvent.Events;
+import GameEvent.GameEvent;
 
 import javax.swing.*;
 import java.awt.*;

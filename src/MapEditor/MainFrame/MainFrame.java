@@ -1,6 +1,6 @@
 package MapEditor.MainFrame;
 
-import MapEditor.Addresses.Addresses;
+import Addresses.Addresses;
 import MapEditor.Cursor.Cursors;
 import MapEditor.GamePanel.GamePanel;
 
@@ -26,16 +26,23 @@ public class MainFrame extends JFrame {
         setResizable(false);
         setUndecorated(true);
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        width = 1280;
-        height = 1024;
+        gd.setFullScreenWindow(this);
+
+        try {
+            gd.setDisplayMode(new DisplayMode(1280, 768, 32, 60));
+            width = 1280;
+            height = 768;
+        } catch (IllegalArgumentException e) {
+            gd.setDisplayMode(new DisplayMode(1280, 1024, 32, 60));
+            width = 1280;
+            height = 1024;
+        }
 
         Addresses.frame = this;
 
         setContentPane(new BackPanel(new BorderLayout()));
         getContentPane().add(new GamePanel(null));
 
-        gd.setFullScreenWindow(this);
-        gd.setDisplayMode(new DisplayMode(1280, 1024, 32, 60));
         setVisible(true);
     }
 

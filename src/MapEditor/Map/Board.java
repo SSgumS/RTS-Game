@@ -1,41 +1,34 @@
 package MapEditor.Map;
 
-import MapEditor.Addresses.Addresses;
-import MapEditor.GameEvent.Events;
-import MapEditor.GameEvent.GameEvent;
-import MapEditor.GameEvent.UnitSelectEvent;
-import MapEditor.MainFrame.MainFrame;
+import Map.GameBoard;
+import Addresses.Addresses;
+import GameEvent.*;
+import GameEvent.UnitSelectEvent;
 import MapEditor.Map.Cell.Cell;
-import MapEditor.Player.Player;
-import MapEditor.Season.Season;
+import MapEditor.Map.Cell.UndoRedoCell;
+import Player.Player;
+import Season.Season;
 import MapEditor.Stack.Redo;
 import MapEditor.Stack.Undo;
-import MapEditor.Units.*;
+import Terrain.Terrain;
+import Units.Resource.Resource;
+import Units.Units;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created by Saeed on 5/23/2017.
  */
-public class Board extends JPanel implements Runnable, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
+public class Board extends GameBoard {
 
-    private boolean isThreadRunning = false;
-    public int mapSize;
-    public Season season;
-    public int originalWidth = 96, originalHeight = 48;
-    private int originalXo, originalYo;
-    public int width = 96, height = 48;
-    public int xo, yo;
-    public Cell[][] cells;
-    private Cell selectedCell;
-    private UnitsInterface kind = Terrain.Grass;
-    private double zoom = 1;
-    private boolean zoomChanged = false;
-    private Player[] players;
-    private Player currentPlayer;
+    private Object kind = Terrain.Grass;
+    private transient BufferedImage kindImage;
+    private int kindXHint = 0;
+    private int kindYHint = 0;
     private Undo undo = new Undo();
     private Redo redo = new Redo();
 
@@ -47,6 +40,7 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
 
         this.mapSize = mapSize;
         this.season = season;
+        kindImage = Terrain.Grass.getEditorImage(0, 0, season);
 
         players = new Player[playerNumber];
         for (int i = 0; i < players.length; i++) {
@@ -67,7 +61,7 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
                     break;
             }
 
-            players[i] = new Player(color);
+            players[i] = new Player(color, i);
         }
         currentPlayer = players[0];
 
@@ -97,17 +91,12 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
         setBackground(Color.black);
     }
 
-    public int getPlayerNumber() {
+    public int getPlayersNumber() {
         return players.length;
     }
 
-    public int getCurrentPlayer() {
-        for (int i = 0; i < players.length; i++) {
-            if (players[i].equals(currentPlayer))
-                return i;
-        }
-
-        return 0;
+    public int getCurrentPlayerNumber() {
+        return currentPlayer.getPlayerNumber();
     }
 
     @Override
@@ -120,19 +109,11 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
             for (int i = 0; i < mapSize; i++) {
                 try {
                     if (zoomChanged)
-                        cells[i][j].zoom(zoom);
+                        cells[i][j].dispatchEvent(new GameEvent(this, Events.zoom));
 
                     if (cells[i][j].getOriginX() + xo > -5*width && cells[i][j].getOriginX() + xo < getWidth() + 5*width && cells[i][j].getOriginY() + yo > -5*height && cells[i][j].getOriginY() + yo < getHeight() + 5*height) {
                         image = cells[i][j].getTerrainImage();
                         g.drawImage(image, cells[i][j].getOriginX() + xo, cells[i][j].getOriginY() + yo, (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
-
-                        try {
-                            if (!cells[i][j].hasParent()) {
-                                UnitsInterface kind = cells[i][j].getKind();
-                                image = kind.getImage(i, j, season);
-                                g.drawImage(image, (int) (cells[i][j].getOriginX() - zoom*kind.getXHint() + xo), (int) (cells[i][j].getOriginY() - zoom*kind.getYHint() + yo), (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
-                            }
-                        } catch (NullPointerException ignored) {}
 
                         if (cells[i][j].getShape().contains(Addresses.panel.mouseX - xo, Addresses.panel.mouseY - getY() - yo))
                             selectedCell = cells[i][j];
@@ -141,16 +122,18 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
             }
         }
 
+            for (Units unit : Units.getUnits()) {
+                if (zoomChanged)
+                    unit.dispatchEvent(new GameEvent(this, Events.zoom));
+
+                if (unit.getOriginX() + xo > -5*width && unit.getOriginX() + xo < getWidth() + 5*width && unit.getOriginY() + yo > -5*height && unit.getOriginY() + yo < getHeight() + 5*height) {
+                    image = unit.getEditorImage(season);
+                    g.drawImage(image, unit.getX() + xo, unit.getY() + yo,  (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
+                }
+            }
+
         try {
-            image = kind.getImage(0, 0, season);
-
-            BufferedImage bufferedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-            Graphics2D g2 = bufferedImage.createGraphics();
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-            g2.drawImage(image, 0, 0, null);
-            g2.dispose();
-
-            g.drawImage(bufferedImage, (int) (selectedCell.getOriginX() - zoom*kind.getXHint() + xo), (int) (selectedCell.getOriginY() - zoom*kind.getYHint() + yo), (int) (zoom*bufferedImage.getWidth()), (int) (zoom*bufferedImage.getHeight()), null);
+            g.drawImage(kindImage, selectedCell.getOriginX() - kindXHint + xo, selectedCell.getOriginY() - kindYHint + yo, (int) (zoom*kindImage.getWidth()), (int) (zoom*kindImage.getHeight()), null);
         } catch (NullPointerException ignored) {}
 
         if (zoomChanged)
@@ -160,19 +143,27 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
     @Override
     public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
-            if ("Terrain".equals(kind.getSource())) {
-                undo.push(selectedCell.clone());
-                if (!redo.isEmpty())
-                    redo.removeAll();
+            if (kind instanceof Terrain) {
+                UndoRedoCell cell = new UndoRedoCell(((Cell) selectedCell).clone());
+                undo.push(cell);
+                Addresses.redo.removeAll();
 
-                selectedCell.setTerrain(kind);
-                if (selectedCell.getKind() != null)
-                    selectedCell.clearKind(false);
-            } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
-                selectedCell.setKind(kind, currentPlayer, false);
+                selectedCell.dispatchEvent(new SetEvent(this, Events.setKind, kind));
+
+                for (Player player : players)
+                    player.dispatchEvent(new SetKindEvent(this, Events.clearKind, selectedCell, cell));
+
+                Resource.clearKind(selectedCell.getShape(), cell);
+            } else {
+                StringBuilder fullName = new StringBuilder(((Class) kind).getName());
+                String name = fullName.substring(fullName.lastIndexOf(".") + 1);
+
+                Units unit = Units.getUnit(name, selectedCell, currentPlayer);
+
+                if (unit.isAllowed(selectedCell.getI(), selectedCell.getJ()))
+                    unit.dispatchEvent(new GameEvent(this, Events.setKind));
+            }
         }
-
-//        Addresses.panel.repaint();
     }
 
     @Override
@@ -186,61 +177,27 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
         }
 
         if (SwingUtilities.isLeftMouseButton(e)) {
-            if ("Terrain".equals(kind.getSource())) {
-                undo.push(selectedCell.clone());
-                if (!redo.isEmpty())
-                    redo.removeAll();
+            if (kind instanceof Terrain) {
+                UndoRedoCell cell = new UndoRedoCell(((Cell) selectedCell).clone());
+                undo.push(cell);
+                Addresses.redo.removeAll();
 
-                selectedCell.setTerrain(kind);
-                if (selectedCell.getKind() != null)
-                    selectedCell.clearKind(false);
-            } else if (!selectedCell.hasKind() && kind.isAllowed((Terrain) selectedCell.getTerrain()))
-                selectedCell.setKind(kind, currentPlayer, false);
-        }
+                selectedCell.dispatchEvent(new SetEvent(this, Events.setKind, kind));
 
-//        Addresses.panel.repaint();
-    }
+                for (Player player : players)
+                    player.dispatchEvent(new SetKindEvent(this, Events.clearKind, selectedCell, cell));
 
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        Addresses.panel.mouseX = e.getX();
-        Addresses.panel.mouseY = e.getY() + getY();
+                Resource.clearKind(selectedCell.getShape(), cell);
+            } else {
+                StringBuilder fullName = new StringBuilder(((Class) kind).getName());
+                String name = fullName.substring(fullName.lastIndexOf(".") + 1);
 
-        if (!isThreadRunning && (Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1)) {
-            isThreadRunning = true;
-            new Thread(this).start();
-        }
+                Units unit = Units.getUnit(name, selectedCell, currentPlayer);
 
-//        Addresses.panel.repaint();
-    }
-
-    @Override
-    public synchronized void run() {
-        while((Addresses.panel.mouseY == 0 || Addresses.panel.mouseY == MainFrame.height - 1 || Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1) && yo > -mapSize*height/2 + getHeight() && xo > -mapSize*width + getWidth()) {
-            if(Addresses.panel.mouseY == 0 && yo < mapSize*height/2) {
-                yo += zoom*48;
-                originalYo += 48;
-            } else if(Addresses.panel.mouseY == MainFrame.height - 1 && yo > -mapSize*height/2 + getHeight()) {
-                yo -= zoom*48;
-                originalYo -= 48;
-            } else if(Addresses.panel.mouseX == 0 && xo < 0) {
-                xo += zoom*48;
-                originalXo += 48;
-            } else if(Addresses.panel.mouseX == getWidth() - 1 && xo > -mapSize*width + getWidth()) {
-                xo -= zoom*48;
-                originalXo -= 48;
-            }
-
-//            Addresses.panel.repaint();
-
-            try {
-                wait(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                if (unit.isAllowed(selectedCell.getI(), selectedCell.getJ()))
+                    unit.dispatchEvent(new GameEvent(this, Events.setKind));
             }
         }
-
-        isThreadRunning = false;
     }
 
     @Override
@@ -252,12 +209,56 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
                 isThreadRunning = true;
                 new Thread(this).start();
             }
-        } else if (e.getID() == Events.setOrigin) {
+        } else if (e.getID() == Events.generateMap) {
             originalXo = xo = -mapSize*width/2 + getWidth()/2;
             originalYo = yo = getHeight()/2;
-        } else if (e.getID() == Events.unitSelect)
-            kind = ((UnitSelectEvent) e).getUnit();
-        else if (e.getID() == Events.currentPlayer) {
+
+            Resource.getResources().removeAllElements();
+            Units.getUnits().removeAllElements();
+
+            for (Class unitClass : Addresses.unitsClass)
+                try {
+                    unitClass.getMethod("setStaticHints").invoke(null);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e1) {
+                    e1.printStackTrace();
+                }
+        } else if (e.getID() == Events.unitSelect) {
+            synchronized (this) {
+                kind = ((UnitSelectEvent) e).getUnit();
+
+                if (kind instanceof Terrain) {
+                    BufferedImage image = ((Terrain) kind).getEditorImage(0, 0, season);
+
+                    BufferedImage bufferedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+                    Graphics2D g2 = bufferedImage.createGraphics();
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+                    g2.drawImage(image, 0, 0, null);
+                    g2.dispose();
+
+                    kindImage = bufferedImage;
+
+                    kindXHint = 0;
+                    kindYHint = 0;
+                } else {
+                    try {
+                        BufferedImage image = (BufferedImage) ((Class) kind).getMethod("getStaticEditorImage", Season.class).invoke(null, season);
+
+                        BufferedImage bufferedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+                        Graphics2D g2 = bufferedImage.createGraphics();
+                        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+                        g2.drawImage(image, 0, 0, null);
+                        g2.dispose();
+
+                        kindImage = bufferedImage;
+
+                        kindXHint = (int) ((Class) kind).getField("staticXHint").get(null);
+                        kindYHint = (int) ((Class) kind).getField("staticYHint").get(null);
+                    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | NoSuchFieldException | NullPointerException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        } else if (e.getID() == Events.currentPlayer) {
             JRadioButton source = (JRadioButton) e.getSource();
 
             switch (source.getText()) {
@@ -277,91 +278,116 @@ public class Board extends JPanel implements Runnable, MouseListener, MouseMotio
         } else if (e.getID() == Events.load) {
             Addresses.undo = undo;
             Addresses.redo = redo;
+
+            if (kind instanceof Terrain) {
+                BufferedImage image = ((Terrain) kind).getEditorImage(0, 0, season);
+
+                BufferedImage bufferedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+                Graphics2D g2 = bufferedImage.createGraphics();
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+                g2.drawImage(image, 0, 0, null);
+                g2.dispose();
+
+                kindImage = bufferedImage;
+            } else
+                try {
+                    BufferedImage image = (BufferedImage) ((Class) kind).getMethod("getStaticEditorImage", Season.class).invoke(null, season);
+
+                    BufferedImage bufferedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+                    Graphics2D g2 = bufferedImage.createGraphics();
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+                    g2.drawImage(image, 0, 0, null);
+                    g2.dispose();
+
+                    kindImage = bufferedImage;
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e1) {
+                    e1.printStackTrace();
+                }
+
+            for (Class unitClass : Addresses.unitsClass)
+                try {
+                    unitClass.getMethod("setStaticHints").invoke(null);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e1) {
+                    e1.printStackTrace();
+                }
         }
     }
 
     @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        int mouseWheel;
-        if (-e.getPreciseWheelRotation() > 0)
-            mouseWheel = (int) Math.ceil(-e.getPreciseWheelRotation());
-        else
-            mouseWheel = (int) -e.getPreciseWheelRotation();
-
-        zoom += (double) mouseWheel/4;
-
-        if (zoom < 0.5)
-            zoom = 0.5;
-        else if (zoom > 2)
-            zoom = 2;
-
-        zoomChanged = true;
-
-        xo = (int) -(zoom*(Addresses.panel.mouseX - originalXo) - Addresses.panel.mouseX);
-        yo = (int) -(zoom*(Addresses.panel.mouseY - getY() - originalYo) - (Addresses.panel.mouseY - getY()));
-
-        width = (int) (zoom*originalWidth);
-        height = (int) (zoom*originalHeight);
-
-        Addresses.hud.dispatchEvent(new GameEvent(this, Events.zoom));
-    }
-
-    @Override
     public void keyPressed(KeyEvent e) {
+        Object object;
+        UndoRedoCell undoRedoCell;
+        Units unit;
+
+
         if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
             if (e.isShiftDown() && !redo.isEmpty()) {
-                Cell cell = redo.pop();
-                int ii = cell.getI();
-                int jj = cell.getJ();
-                undo.push(cells[ii][jj]);
-                if (cells[ii][jj].getKind() != null)
-                    cells[ii][jj].clearKind(true);
-                if (cell.getKind() != null)
-                    cell.setKind(cell.getKind(), cell.getPlayer(), true);
-                cells[ii][jj] = cell;
+                object = redo.pop();
+                if (object instanceof UndoRedoCell) {
+                    undoRedoCell = (UndoRedoCell) object;
+                    Cell cell = undoRedoCell.getCell();
 
-                for (int i = -1; i <= 1; i++)
-                    for (int j = -1; j <= 1; j++)
-                        if (i != 0 || j != 0)
-                            cells[cell.getI() + i][cell.getJ() + j].dispatchEvent(new GameEvent(cell, Events.cellRefactor));
+                    UndoRedoCell undoRedoCell1 = new UndoRedoCell(((Cell) cells[cell.getI()][cell.getJ()]).clone());
+                    undoRedoCell1.setUnit(undoRedoCell.getUnit());
+                    undo.push(undoRedoCell1);
+
+                    undoRedoCell.dispatchEvent(new GameEvent(this, Events.clearKind));
+                    cells[cell.getI()][cell.getJ()] = cell;
+                    for (int i = -1; i <= 1; i++)
+                        for (int j = -1; j <= 1; j++)
+                            if (i != 0 || j != 0) {
+                                try {
+                                    cells[cell.getI() + i][cell.getJ() + j].dispatchEvent(new GameEvent(this, Events.cellRefactor));
+                                } catch (ArrayIndexOutOfBoundsException ignored) {}
+                            }
+                } else {
+                    unit = (Units) object;
+                    unit.dispatchEvent(new GameEvent(this, Events.setKindStack));
+                    undo.push(unit);
+                }
             } else if (!e.isShiftDown() && !undo.isEmpty()) {
-                Cell cell = undo.pop();
-                int ii = cell.getI();
-                int jj = cell.getJ();
-                redo.push(cells[ii][jj]);
-                if (cells[ii][jj].getKind() != null)
-                    cells[ii][jj].clearKind(true);
-                if (cell.getKind() != null)
-                    cell.setKind(cell.getKind(), cell.getPlayer(), true);
-                cells[ii][jj] = cell;
+                object = undo.pop();
+                if (object instanceof UndoRedoCell) {
+                    undoRedoCell = (UndoRedoCell) object;
+                    Cell cell = undoRedoCell.getCell();
 
-                for (int i = -1; i <= 1; i++)
-                    for (int j = -1; j <= 1; j++)
-                        if (i != 0 || j != 0){
-                            try {
-                                cells[cell.getI() + i][cell.getJ() + j].dispatchEvent(new GameEvent(this, Events.cellRefactor));
-                            } catch (ArrayIndexOutOfBoundsException ignored) {}
-                        }
+                    UndoRedoCell undoRedoCell1 = new UndoRedoCell(((Cell) cells[cell.getI()][cell.getJ()]).clone());
+                    undoRedoCell1.setUnit(undoRedoCell.getUnit());
+                    redo.push(undoRedoCell1);
+
+                    undoRedoCell.dispatchEvent(new GameEvent(this, Events.setKind));
+                    cells[cell.getI()][cell.getJ()] = cell;
+                    for (int i = -1; i <= 1; i++)
+                        for (int j = -1; j <= 1; j++)
+                            if (i != 0 || j != 0) {
+                                try {
+                                    cells[cell.getI() + i][cell.getJ() + j].dispatchEvent(new GameEvent(this, Events.cellRefactor));
+                                } catch (ArrayIndexOutOfBoundsException ignored) {}
+                            }
+                } else {
+                    unit = (Units) object;
+                    unit.dispatchEvent(new GameEvent(this, Events.clearKind));
+                    redo.push(unit);
+                }
             }
         }
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {}
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        super.mouseWheelMoved(e);
 
-    @Override
-    public void mouseReleased(MouseEvent e) {}
+        try {
+            for (Class unitClass : Addresses.unitsClass)
+                unitClass.getMethod("setStaticHints").invoke(null);
 
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
-
-    @Override
-    public void keyTyped(KeyEvent e) {}
-
-    @Override
-    public void keyReleased(KeyEvent e) {}
+            if (kind instanceof Class) {
+                kindXHint = (int) ((Class) kind).getField("staticXHint").get(null);
+                kindYHint = (int) ((Class) kind).getField("staticYHint").get(null);
+            }
+        } catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException | InvocationTargetException e1) {
+            e1.printStackTrace();
+        }
+    }
 
 }

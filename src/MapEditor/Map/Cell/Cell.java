@@ -1,72 +1,37 @@
 package MapEditor.Map.Cell;
 
-import MapEditor.Addresses.Addresses;
-import MapEditor.GameEvent.Events;
-import MapEditor.GameEvent.GameEvent;
-import MapEditor.Player.Player;
-import MapEditor.Units.Terrain;
-import MapEditor.Units.UnitsInterface;
+import Addresses.Addresses;
+import GameEvent.*;
+import Map.GameCell;
+import Terrain.Terrain;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
-import java.io.Serializable;
-import java.util.Vector;
 
-public class Cell extends JComponent implements Serializable {
+public class Cell extends GameCell {
 
-	private int i , j;
-	private Player player;
-	private UnitsInterface kind;
-	private UnitsInterface terrain;
-	private Polygon shape;
-	private Cell parent;
-	private int[] originalXs, originalYs;
-	private Vector <Cell> relatedCells = new Vector<>();
-	private transient BufferedImage image;
-
-	public Cell(int i, int j, int[] xs, int[] ys, UnitsInterface terrain) {
+	public Cell(int i, int j, int[] xs, int[] ys, Terrain terrain) {
 	    this.i = i;
 	    this.j = j;
 	    originalXs = xs;
 	    originalYs = ys;
 		shape = new Polygon(xs, ys, 4);
 		this.terrain = terrain;
-		BufferedImage bufferedImage = terrain.getImage(i, j, Addresses.board.season);
+		BufferedImage bufferedImage = terrain.getEditorImage(i, j, Addresses.board.season);
 		image = new BufferedImage(bufferedImage.getColorModel(), bufferedImage.copyData(null), bufferedImage.isAlphaPremultiplied(), null);
 	}
 
-    private Cell(int i, int j, Player player, UnitsInterface kind, UnitsInterface terrain, Cell parent, int[] originalXs, int[] originalYs, Vector<Cell> relatedCells, BufferedImage image) {
-        this.i = i;
-        this.j = j;
-        this.player = player;
-        this.kind = kind;
-        this.terrain = terrain;
-        this.parent = parent;
-        this.originalXs = originalXs;
-        this.originalYs = originalYs;
-        this.relatedCells = relatedCells;
-        this.image = image;
+    private Cell(int i, int j, Terrain terrain, int[] originalXs, int[] originalYs, BufferedImage image) {
+	    this.i = i;
+	    this.j = j;
+	    this.terrain = terrain;
+	    this.originalXs = originalXs;
+	    this.originalYs = originalYs;
+	    this.image = image;
     }
 
-    public Polygon getShape() {
-		return shape;
-	}
-
-	public int getOriginY() {
-		return shape.ypoints[1];
-	}
-
-	public int getOriginX() {
-		return shape.xpoints[0];
-	}
-
-    public UnitsInterface getTerrain() {
-        return terrain;
-    }
-
-    public void setTerrain(UnitsInterface terrain) {
+    private void setTerrain(Terrain terrain) {
         this.terrain = terrain;
 
         changeTerrainImage(false);
@@ -78,7 +43,7 @@ public class Cell extends JComponent implements Serializable {
         for (int k = 0; k < bufferedImages.length; k++)
             bufferedImages[k] = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 
-        BufferedImage bufferedImage = terrain.getImage(i, j, Addresses.board.season);
+        BufferedImage bufferedImage = terrain.getEditorImage(i, j, Addresses.board.season);
         image = new BufferedImage(bufferedImage.getColorModel(), bufferedImage.copyData(null), bufferedImage.isAlphaPremultiplied(), null);
 
         try {
@@ -112,45 +77,47 @@ public class Cell extends JComponent implements Serializable {
         g.dispose();
     }
 
-    private void createImageInDir(int ii, int jj, int width, int height, BufferedImage[] bufferedImages, boolean isElseValid) {
-        Cell cell = Addresses.board.cells[i + ii][j + jj];
+    private void createImageInDir(int ii, int jj, int width, int height, BufferedImage[] bufferedImages, boolean isRefactor) {
+        Cell cell = (Cell) Addresses.board.cells[i + ii][j + jj];
+        if (isRefactor)
+            cell.dispatchEvent(new GameEvent(this, Events.cellRefactor));
 
-        if (((Terrain) cell.getTerrain()).getPriority() < ((Terrain) terrain).getPriority()) {
-            BufferedImage image = cell.getTerrain().getImage(i, j, Addresses.board.season);
+        if ((cell.getTerrain()).getPriority() < terrain.getPriority()) {
+            BufferedImage image = cell.getTerrain().getEditorImage(i, j, Addresses.board.season);
 
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    Color originalColor = new Color(image.getRGB(x, y),true);
+                    Color originalColor = new Color(image.getRGB(x, y), true);
 
                     Color newColor;
                     switch (ii) {
                         case -1:
                             switch (jj) {
                                 case -1:
-                                    if((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && x < (double) width/8) {
-                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255*(x - 0)/(width/8)));
+                                    if ((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && x < (double) width / 8) {
+                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255 * (x - 0) / (width / 8)));
 
-                                        Color imageColor = new Color(bufferedImages[((Terrain) cell.getTerrain()).getPriority()].getRGB(x, y),true);
-                                        if(newColor.getAlpha() > imageColor.getAlpha())
-                                            bufferedImages[((Terrain) cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
+                                        Color imageColor = new Color(bufferedImages[(cell.getTerrain()).getPriority()].getRGB(x, y), true);
+                                        if (newColor.getAlpha() > imageColor.getAlpha())
+                                            bufferedImages[(cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
                                     }
                                     break;
                                 case 0:
-                                    if((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y + x/2 < (double) 3*height/4) {
-                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255*((y + x/2) - height/2)/(height/4)));
+                                    if ((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y + x / 2 < (double) 3 * height / 4) {
+                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255 * ((y + x / 2) - height / 2) / (height / 4)));
 
-                                        Color imageColor = new Color(bufferedImages[((Terrain) cell.getTerrain()).getPriority()].getRGB(x, y),true);
-                                        if(newColor.getAlpha() > imageColor.getAlpha())
-                                            bufferedImages[((Terrain) cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
+                                        Color imageColor = new Color(bufferedImages[(cell.getTerrain()).getPriority()].getRGB(x, y), true);
+                                        if (newColor.getAlpha() > imageColor.getAlpha())
+                                            bufferedImages[(cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
                                     }
                                     break;
                                 case 1:
-                                    if((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y < (double) height/8) {
-                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255*(y - 0)/(height/8)));
+                                    if ((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y < (double) height / 8) {
+                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255 * (y - 0) / (height / 8)));
 
-                                        Color imageColor = new Color(bufferedImages[((Terrain) cell.getTerrain()).getPriority()].getRGB(x, y),true);
-                                        if(newColor.getAlpha() > imageColor.getAlpha())
-                                            bufferedImages[((Terrain) cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
+                                        Color imageColor = new Color(bufferedImages[(cell.getTerrain()).getPriority()].getRGB(x, y), true);
+                                        if (newColor.getAlpha() > imageColor.getAlpha())
+                                            bufferedImages[(cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
                                     }
                                     break;
                             }
@@ -158,21 +125,21 @@ public class Cell extends JComponent implements Serializable {
                         case 0:
                             switch (jj) {
                                 case -1:
-                                    if((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y - x/2 > (double) height/4) {
-                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255*(height/2 - (y - x/2))/(height/4)));
+                                    if ((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y - x / 2 > (double) height / 4) {
+                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255 * (height / 2 - (y - x / 2)) / (height / 4)));
 
-                                        Color imageColor = new Color(bufferedImages[((Terrain) cell.getTerrain()).getPriority()].getRGB(x, y),true);
-                                        if(newColor.getAlpha() > imageColor.getAlpha())
-                                            bufferedImages[((Terrain) cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
+                                        Color imageColor = new Color(bufferedImages[(cell.getTerrain()).getPriority()].getRGB(x, y), true);
+                                        if (newColor.getAlpha() > imageColor.getAlpha())
+                                            bufferedImages[(cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
                                     }
                                     break;
                                 case 1:
-                                    if((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y - x/2 < (double) -height/4) {
-                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255*((y - x/2) + height/2)/(height/4)));
+                                    if ((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y - x / 2 < (double) -height / 4) {
+                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255 * ((y - x / 2) + height / 2) / (height / 4)));
 
-                                        Color imageColor = new Color(bufferedImages[((Terrain) cell.getTerrain()).getPriority()].getRGB(x, y),true);
-                                        if(newColor.getAlpha() > imageColor.getAlpha())
-                                            bufferedImages[((Terrain) cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
+                                        Color imageColor = new Color(bufferedImages[(cell.getTerrain()).getPriority()].getRGB(x, y), true);
+                                        if (newColor.getAlpha() > imageColor.getAlpha())
+                                            bufferedImages[(cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
                                     }
                                     break;
                             }
@@ -180,30 +147,30 @@ public class Cell extends JComponent implements Serializable {
                         case 1:
                             switch (jj) {
                                 case -1:
-                                    if((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y > (double) 7*height/8) {
-                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255*(height - y)/(height/8)));
+                                    if ((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y > (double) 7 * height / 8) {
+                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255 * (height - y) / (height / 8)));
 
-                                        Color imageColor = new Color(bufferedImages[((Terrain) cell.getTerrain()).getPriority()].getRGB(x, y),true);
-                                        if(newColor.getAlpha() > imageColor.getAlpha())
-                                            bufferedImages[((Terrain) cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
+                                        Color imageColor = new Color(bufferedImages[(cell.getTerrain()).getPriority()].getRGB(x, y), true);
+                                        if (newColor.getAlpha() > imageColor.getAlpha())
+                                            bufferedImages[(cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
                                     }
                                     break;
                                 case 0:
-                                    if((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y + x/2 > (double) 5*height/4) {
-                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255*(3*height/2 - (y + x/2))/(height/4)));
+                                    if ((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && y + x / 2 > (double) 5 * height / 4) {
+                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 - 255 * (3 * height / 2 - (y + x / 2)) / (height / 4)));
 
-                                        Color imageColor = new Color(bufferedImages[((Terrain) cell.getTerrain()).getPriority()].getRGB(x, y),true);
-                                        if(newColor.getAlpha() > imageColor.getAlpha())
-                                            bufferedImages[((Terrain) cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
+                                        Color imageColor = new Color(bufferedImages[(cell.getTerrain()).getPriority()].getRGB(x, y), true);
+                                        if (newColor.getAlpha() > imageColor.getAlpha())
+                                            bufferedImages[(cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
                                     }
                                     break;
                                 case 1:
-                                    if((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && x > (double) 7*width/8) {
-                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255*(x - 7*width/8)/(width/8)));
+                                    if ((originalColor.getBlue() != 255 || originalColor.getGreen() != 255 || originalColor.getRed() != 255) && x > (double) 7 * width / 8) {
+                                        newColor = new Color(originalColor.getRed(), originalColor.getGreen(), originalColor.getBlue(), (int) ((double) 255 * (x - 7 * width / 8) / (width / 8)));
 
-                                        Color imageColor = new Color(bufferedImages[((Terrain) cell.getTerrain()).getPriority()].getRGB(x, y),true);
-                                        if(newColor.getAlpha() > imageColor.getAlpha())
-                                            bufferedImages[((Terrain) cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
+                                        Color imageColor = new Color(bufferedImages[(cell.getTerrain()).getPriority()].getRGB(x, y), true);
+                                        if (newColor.getAlpha() > imageColor.getAlpha())
+                                            bufferedImages[(cell.getTerrain()).getPriority()].setRGB(x, y, newColor.getRGB());
                                     }
                                     break;
                             }
@@ -211,122 +178,16 @@ public class Cell extends JComponent implements Serializable {
                     }
                 }
             }
-        } else if (isElseValid)
-            cell.dispatchEvent(new GameEvent(this, Events.cellRefactor));
-    }
-
-    public void setKind(UnitsInterface kind, Player player, boolean isLoaded) {
-	    boolean canSet = true;
-
-        int size = kind.getSize();
-
-        for (int k = 0; k < size; k++)
-            for (int l = 0; l < size; l++) {
-                Cell cell = Addresses.board.cells[i - k][j + l];
-                if (cell.hasKind() || !kind.isAllowed((Terrain) cell.getTerrain())) {
-                    canSet = false;
-                    break;
-                }
-            }
-
-        if (canSet) {
-            if (!isLoaded) {
-                Addresses.undo.push(clone());
-                if (!Addresses.redo.isEmpty())
-                    Addresses.redo.removeAll();
-            }
-
-            if ("Units".equals(kind.getSource()) || "Building".equals(kind.getSource())) {
-                for (int k = 0; k < size; k++)
-                    for (int l = 0; l < size; l++) {
-                        Cell cell = Addresses.board.cells[i - k][j + l];
-                        cell.kind = kind;
-                        cell.player = player;
-                        if (cell != this)
-                            cell.parent = this;
-                        else
-                            this.player.addCell(this);
-                        relatedCells.add(cell);
-                    }
-            } else {
-                for (int k = 0; k < size; k++)
-                    for (int l = 0; l < size; l++) {
-                        Cell cell = Addresses.board.cells[i - k][j + l];
-                        cell.kind = kind;
-                        if (cell != this)
-                            cell.parent = this;
-                        relatedCells.add(cell);
-                    }
-            }
         }
-	}
-
-    public UnitsInterface getKind() {
-		return kind;
-	}
-
-    public boolean hasKind() {
-        return kind != null;
-    }
-
-	public void clearKind(boolean isLoaded) {
-		if (parent != null)
-            parent.clearKind(false);
-        else {
-            if (player != null)
-                player.removeCell(this);
-            for (Cell cell : relatedCells)
-                if (!isLoaded || cell != this) {
-                    cell.kind = null;
-                    cell.parent = null;
-                    cell.player = null;
-                }
-            relatedCells.removeAllElements();
-        }
-	}
-
-    public boolean hasParent() {
-        return parent != null;
-    }
-
-    public void zoom(double zoom) {
-        for (int k = 0; k < 4; k++) {
-            shape.xpoints[k] = (int) (zoom*originalXs[k]);
-            shape.ypoints[k] = (int) (zoom*originalYs[k]);
-        }
-        shape.invalidate();
-    }
-
-    public BufferedImage getTerrainImage() {
-        return image;
     }
 
     public void setTerrainImage(BufferedImage image) {
         this.image = image;
     }
 
-    public Color getColor() {
-	    if (player == null)
-	        return kind.getColor();
-	    else
-	        return player.getColor();
-    }
-
-    public int getI() {
-        return i;
-    }
-
-    public int getJ() {
-        return j;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
     @Override
     public Cell clone() {
-	    Cell cell = new Cell(i, j, player, kind, terrain, parent, originalXs, originalYs, relatedCells, image);
+	    Cell cell = new Cell(i, j, terrain, originalXs, originalYs, image);
 	    cell.shape = shape;
 	    return cell;
     }
@@ -335,7 +196,14 @@ public class Cell extends JComponent implements Serializable {
     protected void processComponentEvent(ComponentEvent e) {
         super.processComponentEvent(e);
 
-        changeTerrainImage(true);
+        switch (e.getID()) {
+            case Events.setKind:
+                setTerrain((Terrain) ((SetEvent) e).getKind());
+                break;
+            case Events.cellRefactor:
+                changeTerrainImage(true);
+                break;
+        }
     }
 
 }

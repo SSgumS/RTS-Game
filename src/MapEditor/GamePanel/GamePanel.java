@@ -1,16 +1,17 @@
 package MapEditor.GamePanel;
 
-import MapEditor.Addresses.Addresses;
-import MapEditor.GameEvent.Events;
-import MapEditor.GameEvent.GameEvent;
-import MapEditor.GameEvent.GenerateMapEvent;
+import Addresses.Addresses;
+import GameEvent.Events;
+import GameEvent.GameEvent;
+import GameEvent.GenerateMapEvent;
+import Map.GameBoard;
 import MapEditor.HUD.HUD;
 import MapEditor.MainFrame.MainFrame;
 import MapEditor.Map.Board;
 import MapEditor.MenuBar.Menu.MenuDialog;
 import MapEditor.MenuBar.MenuBar;
-import MapEditor.Season.Season;
-import MapEditor.Units.Terrain;
+import Season.Season;
+import Terrain.Terrain;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,7 +25,7 @@ import java.awt.event.MouseMotionListener;
 public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
 
     private MenuBar menuBar;
-    private Board board;
+    private GameBoard board;
     private HUD hud;
     private MenuDialog menu = new MenuDialog(Addresses.frame, true);
     public int mouseX, mouseY;
@@ -56,7 +57,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
         board = new Board(null, true, 75, Terrain.Grass, Season.Spring, 2);
         board.setSize(getWidth(), hud.getY() - menuBar.getHeight());
         board.setLocation(0, menuBar.getHeight());
-        board.dispatchEvent(new GameEvent(this, Events.setOrigin));
+        board.dispatchEvent(new GameEvent(this, Events.generateMap));
         hud.dispatchEvent(new GameEvent(board, Events.boardCreated));
         add(board);
     }
@@ -94,7 +95,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
             board = new Board(null, true, event.getSize(), event.getTerrain(), event.getSeason(), event.getPlayerNumber());
             board.setSize(getWidth(), hud.getY() - menuBar.getHeight());
             board.setLocation(0, menuBar.getHeight());
-            board.dispatchEvent(new GameEvent(this, Events.setOrigin));
+            board.dispatchEvent(new GameEvent(this, Events.generateMap));
             hud.dispatchEvent(new GameEvent(board, Events.boardCreated));
             add(board);
         } else if (e.getID() == Events.load) {
@@ -118,22 +119,5 @@ public class GamePanel extends JPanel implements MouseMotionListener, Runnable {
 
     @Override
     public void mouseDragged(MouseEvent e) {}
-
-//    private void render() {
-//        dbImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-//        Graphics g = dbImage.getGraphics();
-//
-//        g.drawImage(hud.getImage(), hud.getX(), hud.getY(), null);
-//        g.drawImage(menuBar.getImage(), menuBar.getX(), menuBar.getY(), null);
-//    }
-
-//    private void paint() {
-//        Graphics g = getGraphics();
-//
-//        g.drawImage(dbImage, 0, 0, null);
-//        paintComponents(g);
-//
-//        g.dispose();
-//    }
 
 }
