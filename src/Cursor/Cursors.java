@@ -1,4 +1,4 @@
-package MapEditor.Cursor;
+package Cursor;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -21,7 +21,7 @@ public class Cursors {
     public static Cursor disembark;
     public static Cursor flag;
 
-    public Cursors() {
+    static {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
 
         try {

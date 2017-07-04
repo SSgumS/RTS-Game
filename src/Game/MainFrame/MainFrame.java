@@ -1,11 +1,11 @@
-package MapEditor.MainFrame;
+package Game.MainFrame;
 
-import MapEditor.GamePanel.GamePanel;
+import Game.GamePanel.GamePanel;
 
 import java.awt.*;
 
 /**
- * Created by Saeed on 5/15/2017.
+ * Created by Saeed on 6/22/2017.
  */
 public class MainFrame extends GameFrame.Frame {
 

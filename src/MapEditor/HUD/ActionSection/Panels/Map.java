@@ -1,7 +1,7 @@
 package MapEditor.HUD.ActionSection.Panels;
 
 import Addresses.Addresses;
-import MapEditor.Button.RegularButton;
+import Button.RegularButton;
 import GameEvent.Events;
 import GameEvent.GameEvent;
 import GameEvent.GenerateMapEvent;
@@ -41,6 +41,7 @@ public class Map extends JPanel implements ActionListener {
         mapSize = new JComboBox<>(new String[]{"2 Players (Small)", "3 Players (Medium)", "4 Players (Large)"});
         mapSize.setSize(getWidth()/2 - 10, getHeight()/4 - 20);
         mapSize.setLocation(label.getX() + label.getWidth() + 10, 10);
+        mapSize.addMouseMotionListener(Addresses.panel);
         add(mapSize);
     }
 
@@ -55,6 +56,7 @@ public class Map extends JPanel implements ActionListener {
         terrains.setSelectedIndex(2);
         terrains.setSize(getWidth()/2 - 10, getHeight()/4 - 20);
         terrains.setLocation(label.getX() + label.getWidth() + 10, getHeight()/4 + 10);
+        terrains.addMouseMotionListener(Addresses.panel);
         add(terrains);
     }
 
@@ -68,6 +70,7 @@ public class Map extends JPanel implements ActionListener {
         seasons = new JComboBox<>(new String[]{"Spring", "Summer", "Autumn", "Winter"});
         seasons.setSize(getWidth()/2 - 10, getHeight()/4 - 20);
         seasons.setLocation(label.getX() + label.getWidth() + 10, getHeight()/2 + 10);
+        seasons.addMouseMotionListener(Addresses.panel);
         add(seasons);
     }
 

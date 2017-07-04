@@ -1,7 +1,7 @@
 package MapEditor.MenuBar.Menu;
 
 import Addresses.Addresses;
-import MapEditor.Button.RegularButton;
+import Button.RegularButton;
 import GameEvent.Events;
 import GameEvent.GameEvent;
 import MapEditor.MainFrame.MainFrame;

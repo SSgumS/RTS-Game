@@ -34,6 +34,7 @@ public class Player extends JPanel implements ActionListener {
         addRadioButtons();
         addActionListener();
         setOpaques();
+        addListeners();
 
         add(player1);
         add(player2);
@@ -87,6 +88,13 @@ public class Player extends JPanel implements ActionListener {
         player2.setOpaque(true);
         player3.setOpaque(true);
         player4.setOpaque(true);
+    }
+
+    private void addListeners() {
+        player1.addMouseMotionListener(Addresses.panel);
+        player2.addMouseMotionListener(Addresses.panel);
+        player3.addMouseMotionListener(Addresses.panel);
+        player4.addMouseMotionListener(Addresses.panel);
     }
 
     @Override

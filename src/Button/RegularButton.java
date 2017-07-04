@@ -1,4 +1,4 @@
-package MapEditor.Button;
+package Button;
 
 import Addresses.Addresses;
 

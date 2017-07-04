@@ -1,5 +1,7 @@
 package Addresses;
 
+import GameFrame.Frame;
+import GameFrame.Panel;
 import Map.GameBoard;
 import MapEditor.GamePanel.GamePanel;
 import MapEditor.HUD.HUD;
@@ -16,6 +18,7 @@ import Units.Resource.Mine.GoldMine;
 import Units.Resource.Mine.StoneMine;
 import Units.Resource.Tree.Tree;
 
+import javax.swing.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
@@ -27,8 +30,8 @@ public class Addresses {
 
     public static HUD hud;
     public static GameBoard board;
-    public static GamePanel panel;
-    public static MainFrame frame;
+    public static Panel panel;
+    public static Frame frame;
     public static Undo undo;
     public static Redo redo;
 

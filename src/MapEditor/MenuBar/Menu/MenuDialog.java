@@ -1,6 +1,6 @@
 package MapEditor.MenuBar.Menu;
 
-import MapEditor.Cursor.Cursors;
+import Cursor.Cursors;
 import MapEditor.MainFrame.MainFrame;
 
 import javax.swing.*;
