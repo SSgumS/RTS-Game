@@ -1,4 +1,4 @@
-package MapEditor.MenuBar.Menu;
+package Game.MenuBar.Menu;
 
 import Cursor.Cursors;
 

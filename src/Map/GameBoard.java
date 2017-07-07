@@ -30,6 +30,29 @@ public class GameBoard extends JPanel implements Runnable, MouseListener, MouseM
 
     public GameBoard(LayoutManager layout, boolean isDoubleBuffered) {
         super(layout, isDoubleBuffered);
+
+        Addresses.board = this;
+    }
+
+    public GameBoard(LayoutManager layout, boolean isDoubleBuffered, boolean isThreadRunning, int mapSize, Season season, int originalWidth, int originalHeight, int originalXo, int originalYo, int width, int height, int xo, int yo, GameCell[][] cells, GameCell selectedCell, double zoom, boolean zoomChanged, Player[] players, Player currentPlayer) {
+        super(layout, isDoubleBuffered);
+        this.isThreadRunning = isThreadRunning;
+        this.mapSize = mapSize;
+        this.season = season;
+        this.originalWidth = originalWidth;
+        this.originalHeight = originalHeight;
+        this.originalXo = originalXo;
+        this.originalYo = originalYo;
+        this.width = width;
+        this.height = height;
+        this.xo = xo;
+        this.yo = yo;
+        this.cells = cells;
+        this.selectedCell = selectedCell;
+        this.zoom = zoom;
+        this.zoomChanged = zoomChanged;
+        this.players = players;
+        this.currentPlayer = currentPlayer;
     }
 
     @Override
@@ -123,7 +146,64 @@ public class GameBoard extends JPanel implements Runnable, MouseListener, MouseM
         isThreadRunning = false;
     }
 
+    public boolean isThreadRunning() {
+        return isThreadRunning;
+    }
+
+    public int getMapSize() {
+        return mapSize;
+    }
+
+    public Season getSeason() {
+        return season;
+    }
+
+    public int getOriginalWidth() {
+        return originalWidth;
+    }
+
+    public int getOriginalHeight() {
+        return originalHeight;
+    }
+
+    public int getOriginalXo() {
+        return originalXo;
+    }
+
+    public int getOriginalYo() {
+        return originalYo;
+    }
+
+    public int getXo() {
+        return xo;
+    }
+
+    public int getYo() {
+        return yo;
+    }
+
+    public GameCell[][] getCells() {
+        return cells;
+    }
+
+    public GameCell getSelectedCell() {
+        return selectedCell;
+    }
+
+    public double getZoom() {
+        return zoom;
+    }
+
+    public boolean isZoomChanged() {
+        return zoomChanged;
+    }
+
     public Player[] getPlayers() {
         return players;
     }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
 }

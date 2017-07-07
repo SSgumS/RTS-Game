@@ -23,6 +23,10 @@ public class Player extends JComponent implements Serializable {
     private Vector <Units> units = new Vector<>();
     private Units capital;
     private int playerNumber;
+    private int tree = 0;
+    private int food = 0;
+    private int gold = 0;
+    private int stone = 0;
 
     public Player(Color color, int playerNumber) {
         this.color = color;
@@ -105,6 +109,22 @@ public class Player extends JComponent implements Serializable {
         }
 
         return true;
+    }
+
+    public int getTree() {
+        return tree;
+    }
+
+    public int getFood() {
+        return food;
+    }
+
+    public int getGold() {
+        return gold;
+    }
+
+    public int getStone() {
+        return stone;
     }
 
 }

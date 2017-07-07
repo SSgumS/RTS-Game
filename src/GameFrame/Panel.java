@@ -28,6 +28,8 @@ public class Panel extends JPanel implements MouseMotionListener, Runnable {
         addMouseMotionListener(this);
     }
 
+    public Panel() {}
+
     @Override
     public void run() {
         while (true) {

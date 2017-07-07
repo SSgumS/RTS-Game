@@ -8,6 +8,7 @@ import Terrain.Terrain;
 import Units.Resource.Resource;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -80,6 +81,8 @@ public class Tree extends Resource {
                 imageNumber = 3;
                 break;
         }
+
+        rect = new Rectangle(getX(), getY(), getImage().getWidth(), getImage().getHeight());
     }
 
     @Override

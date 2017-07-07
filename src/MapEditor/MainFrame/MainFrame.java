@@ -1,5 +1,6 @@
 package MapEditor.MainFrame;
 
+import Addresses.Addresses;
 import MapEditor.GamePanel.GamePanel;
 
 import java.awt.*;
@@ -7,15 +8,11 @@ import java.awt.*;
 /**
  * Created by Saeed on 5/15/2017.
  */
-public class MainFrame extends GameFrame.Frame {
+public class MainFrame {
 
-    public MainFrame(String title) {
-        super(title);
-
-        setContentPane(new BackPanel(new BorderLayout()));
-        getContentPane().add(new GamePanel(null));
-
-        setVisible(true);
+    public MainFrame() {
+        Addresses.frame.setContentPane(new BackPanel(null));
+        Addresses.frame.getContentPane().add(new GamePanel(null));
     }
 
 }

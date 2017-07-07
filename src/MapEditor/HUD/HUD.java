@@ -3,7 +3,6 @@ package MapEditor.HUD;
 import GameEvent.Events;
 import MapEditor.HUD.ActionSection.ActionSection;
 import MapEditor.HUD.MiniMap.MiniMap;
-import MapEditor.MainFrame.MainFrame;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -33,7 +32,7 @@ public class HUD extends JPanel {
         }
 
         setSize(image.getWidth(), image.getHeight());
-        setLocation(0, MainFrame.height - getHeight());
+        setLocation(0, GameFrame.Frame.height - getHeight());
 
         miniMap.setLocation(getWidth() - 19 - miniMap.getWidth(), getHeight() - 10 - miniMap.getHeight());
 

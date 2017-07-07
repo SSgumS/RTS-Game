@@ -8,6 +8,7 @@ import Season.Season;
 import Terrain.Terrain;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -47,6 +48,8 @@ public class Town extends Building {
 
         xHint = (int) (Addresses.board.zoom*originalXHint);
         yHint = (int) (Addresses.board.zoom*originalYHint);
+
+        rect = new Rectangle(getX(), getY(), getImage().getWidth(), getImage().getHeight());
     }
 
     @Override

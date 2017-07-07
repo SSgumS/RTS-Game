@@ -34,7 +34,7 @@ public class Board extends GameBoard {
 
     public Board(LayoutManager layout, boolean isDoubleBuffered, int mapSize, Terrain terrain, Season season, int playerNumber) {
         super(layout, isDoubleBuffered);
-        Addresses.board = this;
+
         Addresses.undo = undo;
         Addresses.redo = redo;
 

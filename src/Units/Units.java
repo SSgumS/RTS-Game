@@ -35,6 +35,7 @@ public class Units extends JComponent {
     protected int[] originalXPoints = new int[4];
     protected int[] originalYPoints = new int[4];
     protected Polygon shape;
+    protected Rectangle rect;
     protected int originalXHint;
     protected int originalYHint;
     protected int xHint;
@@ -98,6 +99,12 @@ public class Units extends JComponent {
         return null;
     }
 
+    public BufferedImage getImage() {
+//        ImageIO.read(new File("resources\\images\\ui\\menu bar\\game\\menubar.png"));
+
+        return null;
+    }
+
     public Color getColor() {
         return null;
     }
@@ -140,6 +147,8 @@ public class Units extends JComponent {
             shape.ypoints[k] = (int) (zoom*originalYPoints[k]);
         }
         shape.invalidate();
+
+        rect = new Rectangle(getX(), getY(), getImage().getWidth(), getImage().getHeight());
     }
 
     public static Units getUnit(String className, GameCell selectedCell, Player owner) {
@@ -186,6 +195,10 @@ public class Units extends JComponent {
 
     public static void setUnits(Vector<Units> units) {
         Units.units = units;
+    }
+
+    public Rectangle getRect() {
+        return rect;
     }
 
     @Override

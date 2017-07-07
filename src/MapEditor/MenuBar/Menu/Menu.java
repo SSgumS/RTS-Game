@@ -4,8 +4,9 @@ import Addresses.Addresses;
 import Button.RegularButton;
 import GameEvent.Events;
 import GameEvent.GameEvent;
-import MapEditor.MainFrame.MainFrame;
 import Player.Player;
+import mainMenu.BackPanel;
+import mainMenu.ButPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +32,7 @@ public class Menu extends JPanel implements ActionListener {
     public Menu(LayoutManager layout) {
         super(layout);
         setOpaque(false);
-        setSize(MainFrame.width/3, MainFrame.height/2);
+        setSize(GameFrame.Frame.width/3, GameFrame.Frame.height/2);
 
         addQuit();
         addSave();
@@ -89,7 +90,10 @@ public class Menu extends JPanel implements ActionListener {
         JButton source = (JButton) e.getSource();
 
         if (source.equals(quit)) {
-            System.exit(0);
+            Addresses.frame.setContentPane(new BackPanel(null));
+            Addresses.frame.getContentPane().add(new ButPanel());
+            Addresses.panel.dispatchEvent(new GameEvent(cancel, Events.actionOff));
+            Addresses.frame.revalidate();
         } else if (source.equals(save)) {
             if (hasAllCapital()) {
                 FileChooser fileChooser = new FileChooser("resources\\maps\\saves");

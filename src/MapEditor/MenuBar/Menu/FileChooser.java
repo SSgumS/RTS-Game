@@ -107,19 +107,21 @@ public class FileChooser extends JFileChooser implements ActionListener {
                 for (int j = 0; j < mapCells.length; j++)
                     mapCells[i][j].dispatchEvent(new GameEvent(this, Events.cellRefactor));
 
-            Vector<UndoRedoCell> cells = new Vector<>();
-            for (Object object : Addresses.undo.getStack())
-                if (object instanceof UndoRedoCell)
-                    cells.addElement((UndoRedoCell) object);
-            for (int i = 0; i < cells.size(); i++)
-                cells.elementAt(i).getCell().setTerrainImage(ImageIO.read(zipFile.getInputStream(zipFile.getEntry("undo image " + i + ".png"))));
+            try {
+                Vector<UndoRedoCell> cells = new Vector<>();
+                for (Object object : Addresses.undo.getStack())
+                    if (object instanceof UndoRedoCell)
+                        cells.addElement((UndoRedoCell) object);
+                for (int i = 0; i < cells.size(); i++)
+                    cells.elementAt(i).getCell().setTerrainImage(ImageIO.read(zipFile.getInputStream(zipFile.getEntry("undo image " + i + ".png"))));
 
-            cells = new Vector<>();
-            for (Object object : Addresses.redo.getStack())
-                if (object instanceof UndoRedoCell)
-                    cells.addElement((UndoRedoCell) object);
-            for (int i = 0; i < cells.size(); i++)
-                cells.elementAt(i).getCell().setTerrainImage(ImageIO.read(zipFile.getInputStream(zipFile.getEntry("redo image " + i + ".png"))));
+                cells = new Vector<>();
+                for (Object object : Addresses.redo.getStack())
+                    if (object instanceof UndoRedoCell)
+                        cells.addElement((UndoRedoCell) object);
+                for (int i = 0; i < cells.size(); i++)
+                    cells.elementAt(i).getCell().setTerrainImage(ImageIO.read(zipFile.getInputStream(zipFile.getEntry("redo image " + i + ".png"))));
+            } catch (NullPointerException ignored) {}
 
             in.close();
             zipFile.close();
