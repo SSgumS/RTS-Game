@@ -2,15 +2,20 @@ package Addresses;
 
 import GameFrame.Frame;
 import GameFrame.Panel;
+import GameHUD.HUD;
 import Map.GameBoard;
-import MapEditor.GamePanel.GamePanel;
-import MapEditor.HUD.HUD;
-import MapEditor.MainFrame.MainFrame;
 import MapEditor.Stack.Redo;
 import MapEditor.Stack.Undo;
 import Terrain.Terrain;
-import Units.Building.Town;
-import Units.Human.Worker;
+import Units.Building.Barracks.Barracks;
+import Units.Building.LumberCamp.LumberCamp;
+import Units.Building.MiningCamp.MiningCamp;
+import Units.Building.Seaport.Seaport;
+import Units.Building.Town.Town;
+import Units.Human.Boat.Boat;
+import Units.Human.Ship.Ship;
+import Units.Human.Soldier.Soldier;
+import Units.Human.Worker.Worker;
 import Units.Resource.Bush.Bush;
 import Units.Resource.Fish.BigFish;
 import Units.Resource.Fish.LittleFish;
@@ -18,7 +23,6 @@ import Units.Resource.Mine.GoldMine;
 import Units.Resource.Mine.StoneMine;
 import Units.Resource.Tree.Tree;
 
-import javax.swing.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
@@ -51,6 +55,14 @@ public class Addresses {
             put("Water", Terrain.Water);
 
             put("Worker", Worker.class);
+            put("Soldier", Soldier.class);
+            put("Boat", Boat.class);
+            put("Ship", Ship.class);
+
+            put("Barracks", Barracks.class);
+            put("Lumber Camp", LumberCamp.class);
+            put("Mining Camp", MiningCamp.class);
+            put("Seaport", Seaport.class);
             put("Town", Town.class);
 
             put("Bush", Bush.class);

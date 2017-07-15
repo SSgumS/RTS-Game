@@ -11,6 +11,7 @@ import Season.Season;
 import MapEditor.Stack.Redo;
 import MapEditor.Stack.Undo;
 import Terrain.Terrain;
+import Units.Human.Human;
 import Units.Resource.Resource;
 import Units.Units;
 
@@ -25,10 +26,6 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class Board extends GameBoard {
 
-    private Object kind = Terrain.Grass;
-    private transient BufferedImage kindImage;
-    private int kindXHint = 0;
-    private int kindYHint = 0;
     private Undo undo = new Undo();
     private Redo redo = new Redo();
 
@@ -40,6 +37,7 @@ public class Board extends GameBoard {
 
         this.mapSize = mapSize;
         this.season = season;
+        kind = Terrain.Grass;
         kindImage = Terrain.Grass.getEditorImage(0, 0, season);
 
         players = new Player[playerNumber];
@@ -82,13 +80,7 @@ public class Board extends GameBoard {
 
             return false;
         });
-
-        addMouseListener(this);
-        addMouseMotionListener(this);
-        addMouseWheelListener(this);
         addKeyListener(this);
-
-        setBackground(Color.black);
     }
 
     public int getPlayersNumber() {
@@ -122,15 +114,15 @@ public class Board extends GameBoard {
             }
         }
 
-            for (Units unit : Units.getUnits()) {
-                if (zoomChanged)
-                    unit.dispatchEvent(new GameEvent(this, Events.zoom));
+        for (Units unit : Units.getUnits()) {
+            if (zoomChanged)
+                unit.dispatchEvent(new GameEvent(this, Events.zoom));
 
-                if (unit.getOriginX() + xo > -5*width && unit.getOriginX() + xo < getWidth() + 5*width && unit.getOriginY() + yo > -5*height && unit.getOriginY() + yo < getHeight() + 5*height) {
-                    image = unit.getEditorImage(season);
-                    g.drawImage(image, unit.getX() + xo, unit.getY() + yo,  (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
-                }
+            if (unit.getOriginX() + xo > -5*width && unit.getOriginX() + xo < getWidth() + 5*width && unit.getOriginY() + yo > -5*height && unit.getOriginY() + yo < getHeight() + 5*height) {
+                image = unit.getEditorImage(season);
+                g.drawImage(image, unit.getX() + xo, unit.getY() + yo,  (int) (zoom*image.getWidth()), (int) (zoom*image.getHeight()), null);
             }
+        }
 
         try {
             g.drawImage(kindImage, selectedCell.getOriginX() - kindXHint + xo, selectedCell.getOriginY() - kindYHint + yo, (int) (zoom*kindImage.getWidth()), (int) (zoom*kindImage.getHeight()), null);
@@ -168,26 +160,22 @@ public class Board extends GameBoard {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        Addresses.panel.mouseX = e.getX();
-        Addresses.panel.mouseY = e.getY() + getY();
-
-        if (!isThreadRunning && (Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1)) {
-            isThreadRunning = true;
-            new Thread(this).start();
-        }
+        super.mouseDragged(e);
 
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (kind instanceof Terrain) {
-                UndoRedoCell cell = new UndoRedoCell(((Cell) selectedCell).clone());
-                undo.push(cell);
-                Addresses.redo.removeAll();
+                if (selectedCell.getTerrain() != kind || !selectedCell.hasUnit()) {
+                    UndoRedoCell cell = new UndoRedoCell(((Cell) selectedCell).clone());
+                    undo.push(cell);
+                    Addresses.redo.removeAll();
 
-                selectedCell.dispatchEvent(new SetEvent(this, Events.setKind, kind));
+                    selectedCell.dispatchEvent(new SetEvent(this, Events.setKind, kind));
 
-                for (Player player : players)
-                    player.dispatchEvent(new SetKindEvent(this, Events.clearKind, selectedCell, cell));
+                    for (Player player : players)
+                        player.dispatchEvent(new SetKindEvent(this, Events.clearKind, selectedCell, cell));
 
-                Resource.clearKind(selectedCell.getShape(), cell);
+                    Resource.clearKind(selectedCell.getShape(), cell);
+                }
             } else {
                 StringBuilder fullName = new StringBuilder(((Class) kind).getName());
                 String name = fullName.substring(fullName.lastIndexOf(".") + 1);
@@ -310,6 +298,10 @@ public class Board extends GameBoard {
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e1) {
                     e1.printStackTrace();
                 }
+        } else if (e.getID() == Events.setUnitImages) {
+            for (Units unit : Units.getUnits())
+                if (unit instanceof Human)
+                    unit.dispatchEvent(e);
         }
     }
 
@@ -370,23 +362,6 @@ public class Board extends GameBoard {
                     redo.push(unit);
                 }
             }
-        }
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        super.mouseWheelMoved(e);
-
-        try {
-            for (Class unitClass : Addresses.unitsClass)
-                unitClass.getMethod("setStaticHints").invoke(null);
-
-            if (kind instanceof Class) {
-                kindXHint = (int) ((Class) kind).getField("staticXHint").get(null);
-                kindYHint = (int) ((Class) kind).getField("staticYHint").get(null);
-            }
-        } catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException | InvocationTargetException e1) {
-            e1.printStackTrace();
         }
     }
 

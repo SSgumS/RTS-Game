@@ -55,7 +55,7 @@ public class Units extends JPanel implements ListSelectionListener, ChangeListen
     }
 
     private void setUnit() {
-        unit = new JList<>(new String[]{"Worker"});
+        unit = new JList<>(new String[]{"Worker", "Soldier", "Boat"});
         unit.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         unit.setForeground(Color.WHITE);
         unit.addListSelectionListener(this);
@@ -64,7 +64,7 @@ public class Units extends JPanel implements ListSelectionListener, ChangeListen
     }
 
     private void setBuilding() {
-        building = new JList<>(new String[]{"Town"});
+        building = new JList<>(new String[]{"Town", "Seaport", "Barracks", "Lumber Camp", "Mining Camp"});
         building.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         building.setForeground(Color.WHITE);
         building.addListSelectionListener(this);

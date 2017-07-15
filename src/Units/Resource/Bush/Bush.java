@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Vector;
 
 /**
@@ -27,7 +28,7 @@ public class Bush extends Resource {
     public static int staticYHint = 15;
 
     static {
-        File[] files = new File("resources\\images\\bush\\editor").listFiles();
+        File[] files = new File("resources\\images\\bush").listFiles();
         images = new BufferedImage[files.length];
         try {
             for (int i = 0; i < files.length; i++)
@@ -40,6 +41,9 @@ public class Bush extends Resource {
     public Bush(GameCell cell, Player owner) {
         super(cell, owner, 1);
 
+        originalColor = new Color(255, 50, 55);
+        color = originalColor;
+
         abandonTerrains = new Vector<>(Arrays.asList(Terrain.DeepWater, Terrain.Ice, Terrain.Water));
 
         originalXHint = (int) -4.5;
@@ -48,12 +52,12 @@ public class Bush extends Resource {
         xHint = (int) (Addresses.board.zoom*originalXHint);
         yHint = (int) (Addresses.board.zoom*originalYHint);
 
-        rect = new Rectangle(getX(), getY(), getImage().getWidth(), getImage().getHeight());
+        imageNumber = new Random().nextInt(4);
     }
 
     @Override
     public BufferedImage getEditorImage(Season season) {
-        return images[0];
+        return images[imageNumber];
     }
 
     public static BufferedImage getStaticEditorImage(Season season) {
@@ -63,6 +67,11 @@ public class Bush extends Resource {
     public static void setStaticHints() {
         staticXHint = (int) (Addresses.board.zoom*staticOriginalXHint);
         staticYHint = (int) (Addresses.board.zoom*staticOriginalYHint);
+    }
+
+    @Override
+    public BufferedImage getImage() {
+        return images[imageNumber];
     }
 
 }

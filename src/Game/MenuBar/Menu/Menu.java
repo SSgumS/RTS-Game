@@ -5,7 +5,7 @@ import Button.RegularButton;
 import GameEvent.Events;
 import GameEvent.GameEvent;
 import mainMenu.BackPanel;
-import mainMenu.ButPanel;
+import mainMenu.MenuPanels.Main.ButPanel;
 
 import javax.swing.*;
 import java.awt.*;

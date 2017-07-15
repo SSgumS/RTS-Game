@@ -1,4 +1,4 @@
-package mainMenu;
+package mainMenu.MenuPanels.Main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,6 +7,9 @@ import javax.swing.JButton;
 import Addresses.Addresses;
 import GameFrame.Frame;
 import MapEditor.MainFrame.MainFrame;
+import mainMenu.MenuButton.MyButton;
+import mainMenu.ForPanel;
+import mainMenu.MenuPanels.SinglePlayer.SinglePanel;
 
 public class ButPanel extends ForPanel implements ActionListener{
 

@@ -3,7 +3,9 @@ package Player;
 import GameEvent.Events;
 import GameEvent.SetKindEvent;
 import MapEditor.Map.Cell.UndoRedoCell;
-import Units.Building.Town;
+import Units.Building.LumberCamp.LumberCamp;
+import Units.Building.MiningCamp.MiningCamp;
+import Units.Building.Town.Town;
 import Units.Units;
 
 import javax.swing.*;
@@ -23,7 +25,7 @@ public class Player extends JComponent implements Serializable {
     private Vector <Units> units = new Vector<>();
     private Units capital;
     private int playerNumber;
-    private int tree = 0;
+    private int wood = 0;
     private int food = 0;
     private int gold = 0;
     private int stone = 0;
@@ -89,6 +91,22 @@ public class Player extends JComponent implements Serializable {
         }
     }
 
+    private boolean hasLumberCamp() {
+        for (Units unit : units)
+            if (unit instanceof LumberCamp)
+                return true;
+
+        return false;
+    }
+
+    private boolean hasMiningCamp() {
+        for (Units unit : units)
+            if (unit instanceof MiningCamp)
+                return true;
+
+        return false;
+    }
+
     @Override
     protected void processComponentEvent(ComponentEvent e) {
         super.processComponentEvent(e);
@@ -96,6 +114,27 @@ public class Player extends JComponent implements Serializable {
         switch (e.getID()) {
             case Events.clearKind:
                 clearKind(((SetKindEvent) e).getCell().getShape(), ((SetKindEvent) e).getUndoRedoCell());
+                break;
+            case Events.wood:
+                if (hasLumberCamp())
+                    wood += 30*2;
+                else
+                    wood += 30;
+                break;
+            case Events.gold:
+                if (hasMiningCamp())
+                    gold += 30*2;
+                else
+                    gold += 30;
+                break;
+            case Events.stone:
+                if (hasMiningCamp())
+                    stone += 30*2;
+                else
+                    stone += 30;
+                break;
+            case Events.food:
+                food += 30;
                 break;
         }
     }
@@ -111,8 +150,8 @@ public class Player extends JComponent implements Serializable {
         return true;
     }
 
-    public int getTree() {
-        return tree;
+    public int getWood() {
+        return wood;
     }
 
     public int getFood() {

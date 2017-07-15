@@ -1,15 +1,8 @@
-package mainMenu;
-
-import java.awt.Color;
+package mainMenu.MenuButton;
 
 import javax.swing.JButton;
 
 public class MyButton extends JButton{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	    public MyButton(String text, int wid, int high) {
 	        super(text);

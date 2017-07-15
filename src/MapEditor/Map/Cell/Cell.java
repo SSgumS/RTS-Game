@@ -3,6 +3,7 @@ package MapEditor.Map.Cell;
 import Addresses.Addresses;
 import GameEvent.*;
 import Map.GameCell;
+import Season.Season;
 import Terrain.Terrain;
 
 import java.awt.*;
@@ -17,22 +18,24 @@ public class Cell extends GameCell {
 	    originalXs = xs;
 	    originalYs = ys;
 		shape = new Polygon(xs, ys, 4);
-		this.terrain = terrain;
+		this.terrain = originalTerrain = terrain;
 		BufferedImage bufferedImage = terrain.getEditorImage(i, j, Addresses.board.season);
 		image = new BufferedImage(bufferedImage.getColorModel(), bufferedImage.copyData(null), bufferedImage.isAlphaPremultiplied(), null);
 	}
 
-    private Cell(int i, int j, Terrain terrain, int[] originalXs, int[] originalYs, BufferedImage image) {
+    private Cell(int i, int j, Terrain terrain, Terrain originalTerrain, int[] originalXs, int[] originalYs, BufferedImage image) {
 	    this.i = i;
 	    this.j = j;
 	    this.terrain = terrain;
+	    this.originalTerrain = originalTerrain;
 	    this.originalXs = originalXs;
 	    this.originalYs = originalYs;
 	    this.image = image;
     }
 
-    private void setTerrain(Terrain terrain) {
+    private void setTerrain(Terrain terrain, Terrain originalTerrain) {
         this.terrain = terrain;
+        this.originalTerrain = originalTerrain;
 
         changeTerrainImage(false);
     }
@@ -187,7 +190,7 @@ public class Cell extends GameCell {
 
     @Override
     public Cell clone() {
-	    Cell cell = new Cell(i, j, terrain, originalXs, originalYs, image);
+	    Cell cell = new Cell(i, j, terrain, originalTerrain, originalXs, originalYs, image);
 	    cell.shape = shape;
 	    return cell;
     }
@@ -198,10 +201,17 @@ public class Cell extends GameCell {
 
         switch (e.getID()) {
             case Events.setKind:
-                setTerrain((Terrain) ((SetEvent) e).getKind());
+                setTerrain((Terrain) ((SetEvent) e).getKind(), (Terrain) ((SetEvent) e).getKind());
                 break;
             case Events.cellRefactor:
                 changeTerrainImage(true);
+                break;
+            case Events.seasonChanged:
+                if (originalTerrain == Terrain.DeepWater || originalTerrain == Terrain.Water)
+                    if (Addresses.board.season == Season.Spring)
+                        setTerrain(originalTerrain, originalTerrain);
+                    else
+                        setTerrain(Terrain.Ice, originalTerrain);
                 break;
         }
     }

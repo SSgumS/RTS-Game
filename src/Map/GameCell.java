@@ -2,7 +2,10 @@ package Map;
 
 import Addresses.Addresses;
 import GameEvent.Events;
+import Player.Player;
 import Terrain.Terrain;
+import Units.Resource.Resource;
+import Units.Units;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,8 +20,10 @@ public class GameCell extends JComponent implements Serializable {
 
     protected int i , j;
     protected Terrain terrain;
+    protected Terrain originalTerrain;
     protected Polygon shape;
     protected int[] originalXs, originalYs;
+    protected Units kind;
     protected transient BufferedImage image;
 
     public Polygon getShape() {
@@ -39,6 +44,14 @@ public class GameCell extends JComponent implements Serializable {
 
     public int getOriginalOriginX() {
         return originalXs[0];
+    }
+
+    public double getOriginalCenterX() {
+        return shape.xpoints[0];
+    }
+
+    public double getOriginalCenterY() {
+        return shape.ypoints[1];
     }
 
     public int[] getOriginalXs() {
@@ -76,6 +89,22 @@ public class GameCell extends JComponent implements Serializable {
 
     public int getJ() {
         return j;
+    }
+
+    public void setKind(Units kind) {
+        this.kind = kind;
+    }
+
+    public Units getKind() {
+        return kind;
+    }
+
+    public boolean hasUnit() {
+        for (Player player : Addresses.board.getPlayers())
+            if (!player.isAllowed(getShape()))
+                return false;
+
+        return Resource.isStaticAllowed(getShape());
     }
 
     @Override

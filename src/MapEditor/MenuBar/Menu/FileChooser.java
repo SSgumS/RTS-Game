@@ -101,6 +101,7 @@ public class FileChooser extends JFileChooser implements ActionListener {
             Addresses.panel.dispatchEvent(new GameEvent(this, Events.clearSelection));
             Units.setUnits((Vector<Units>) in.readObject());
             Resource.setResources((Vector<Resource>) in.readObject());
+            Addresses.board.dispatchEvent(new GameEvent(this, Events.setUnitImages));
 
             GameCell[][] mapCells = Addresses.board.cells;
             for (int i = 0; i < mapCells.length; i++)

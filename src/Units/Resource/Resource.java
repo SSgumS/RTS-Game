@@ -2,6 +2,7 @@ package Units.Resource;
 
 import Addresses.Addresses;
 import GameEvent.Events;
+import GameEvent.GameEvent;
 import Map.GameCell;
 import MapEditor.Map.Cell.UndoRedoCell;
 import Player.Player;
@@ -18,11 +19,15 @@ import java.util.Vector;
  */
 public class Resource extends Units {
 
-    private Color color = new Color(0, 100, 0);
+    protected GameCell cell;
     private static Vector <Resource> resources = new Vector<>();
 
     public Resource(GameCell cell, Player owner, int size) {
         super(cell, owner, size);
+
+        this.cell = cell;
+
+        statsPanel = new GameHUD.StatsSection.Resource.Resource(null, this);
     }
 
     private static void addUnit(Resource resource) {
@@ -48,15 +53,10 @@ public class Resource extends Units {
         Resource.resources = resources;
     }
 
-    @Override
-    public Color getColor() {
-        return color;
-    }
-
     public static void clearKind(Polygon shape, UndoRedoCell cell) {
         Iterator<Resource> iterator = resources.iterator();
         while (iterator.hasNext()) {
-            Resource resource= iterator.next();
+            Resource resource = iterator.next();
             Area area = new Area(shape);
             area.intersect(resource.getArea());
             if (!area.isEmpty()) {
@@ -79,6 +79,12 @@ public class Resource extends Units {
         return true;
     }
 
+    protected void use() {
+        health-=10;
+        if (health == 0)
+            dispatchEvent(new GameEvent(this, Events.death));
+    }
+
     @Override
     protected void processComponentEvent(ComponentEvent e) {
         super.processComponentEvent(e);
@@ -87,16 +93,38 @@ public class Resource extends Units {
             case Events.setKind:
                 Resource.addUnit(this);
 
+                for (int i = size - 1; i >= 0; i--)
+                    for (int j = size - 1; j >= 0; j--)
+                        Addresses.board.cells[cell.getI() - i][cell.getJ() + j].setKind(this);
+
                 Addresses.undo.push(this);
                 Addresses.redo.removeAll();
                 break;
             case Events.setKindStack:
                 Resource.addUnit(this);
+
+                for (int i = size - 1; i >= 0; i--)
+                    for (int j = size - 1; j >= 0; j--)
+                        Addresses.board.cells[cell.getI() - i][cell.getJ() + j].setKind(this);
                 break;
             case Events.clearKind:
                 resources.removeElement(this);
+
+                for (int i = size - 1; i >= 0; i--)
+                    for (int j = size - 1; j >= 0; j--)
+                        Addresses.board.cells[cell.getI() - i][cell.getJ() + j].setKind(null);
+                break;
+            case Events.use:
+                use();
                 break;
         }
+    }
+
+    @Override
+    protected void death() {
+        super.death();
+
+        dispatchEvent(new GameEvent(this, Events.clearKind));
     }
 
 }

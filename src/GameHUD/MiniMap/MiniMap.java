@@ -1,4 +1,4 @@
-package MapEditor.HUD.MiniMap;
+package GameHUD.MiniMap;
 
 import Addresses.Addresses;
 import Map.GameBoard;
@@ -45,7 +45,10 @@ public class MiniMap extends JPanel {
             }
         }
 
-            for (Units unit : Units.getUnits()) {
+        for (int i = 0; i < Units.getUnits().size(); i++) {
+            try {
+                Units unit = Units.getUnits().elementAt(i);
+
                 g2D.setColor(unit.getColor());
 
                 Polygon shape = unit.getShape();
@@ -57,7 +60,8 @@ public class MiniMap extends JPanel {
                 path.closePath();
 
                 g2D.fill(path);
-            }
+            } catch (NullPointerException ignored) {}
+        }
 
         Rectangle2D.Double rect = new Rectangle2D.Double((double) -board.xo*width/board.width, (double) -board.yo*height/board.height + getHeight()/2, rectWidth, rectHeight);
         g2D.setColor(Color.WHITE);

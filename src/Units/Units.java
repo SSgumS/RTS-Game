@@ -1,13 +1,22 @@
 package Units;
 
 import Addresses.Addresses;
+import Game.HUD.StatsSection.Panels.SingleSelect;
 import GameEvent.Events;
+import GameEvent.GameEvent;
 import Map.GameCell;
 import Player.Player;
 import Season.Season;
 import Terrain.Terrain;
-import Units.Building.Town;
-import Units.Human.Worker;
+import Units.Building.Barracks.Barracks;
+import Units.Building.LumberCamp.LumberCamp;
+import Units.Building.MiningCamp.MiningCamp;
+import Units.Building.Seaport.Seaport;
+import Units.Building.Town.Town;
+import Units.Human.Boat.Boat;
+import Units.Human.Ship.Ship;
+import Units.Human.Soldier.Soldier;
+import Units.Human.Worker.Worker;
 import Units.Resource.Bush.Bush;
 import Units.Resource.Fish.BigFish;
 import Units.Resource.Fish.LittleFish;
@@ -28,30 +37,32 @@ import java.util.Vector;
  */
 public class Units extends JComponent {
 
-    protected int originalOriginX;
-    protected int originalOriginY;
+    protected double originalOriginX;
+    protected double originalOriginY;
     protected int originX;
     protected int originY;
-    protected int[] originalXPoints = new int[4];
-    protected int[] originalYPoints = new int[4];
+    protected double[] originalXPoints = new double[4];
+    protected double[] originalYPoints = new double[4];
     protected Polygon shape;
-    protected Rectangle rect;
     protected int originalXHint;
     protected int originalYHint;
     protected int xHint;
     protected int yHint;
     protected int size;
+    protected Color originalColor;
+    protected Color color;
     protected Vector <Terrain> abandonTerrains;
+    protected int imageNumber = 0;
+    protected int direction = 0;
+    protected boolean alive = true;
+    protected SingleSelect statsPanel;
+    protected volatile int health = 100;
+    protected int healthCapacity = 100;
 
     private static Vector<Units> units = new Vector<>();
 
     public Units(GameCell cell, Player owner, int size) {
         this.size = size;
-
-        originalOriginX = cell.getOriginalOriginX();
-        originalOriginY = cell.getOriginalOriginY();
-        originX = cell.getOriginX();
-        originY = cell.getOriginY();
 
         int[] originalXs = cell.getOriginalXs();
         int[] originalYs = cell.getOriginalYs();
@@ -63,6 +74,11 @@ public class Units extends JComponent {
         originalYPoints[1] = originalYs[1] - (size-1)*Addresses.board.originalHeight;
         originalYPoints[2] = originalYs[2] - (size-1)*Addresses.board.originalHeight/2;
         originalYPoints[3] = originalYs[3];
+
+        originalOriginX = originalXPoints[0];
+        originalOriginY = originalYPoints[1];
+        originX = (int) (Addresses.board.zoom*originalOriginX);
+        originY = (int) (Addresses.board.zoom*originalOriginY);
 
         int[] xPoints = new int[4];
         int[] yPoints = new int[4];
@@ -80,6 +96,9 @@ public class Units extends JComponent {
     }
 
     public int getX() {
+        if (this instanceof Barracks)
+            System.out.println(xHint + " " + yHint);
+
         return originX - xHint;
     }
 
@@ -95,18 +114,32 @@ public class Units extends JComponent {
         return originY;
     }
 
+    public double getOriginalOriginX() {
+        return originalOriginX;
+    }
+
+    public double getOriginalOriginY() {
+        return originalOriginY;
+    }
+
+    public double getOriginalCenterX() {
+        return shape.xpoints[0];
+    }
+
+    public double getOriginalCenterY() {
+        return shape.ypoints[1];
+    }
+
     public BufferedImage getEditorImage(Season season) {
         return null;
     }
 
     public BufferedImage getImage() {
-//        ImageIO.read(new File("resources\\images\\ui\\menu bar\\game\\menubar.png"));
-
         return null;
     }
 
     public Color getColor() {
-        return null;
+        return color;
     }
 
     public Area getArea() {
@@ -147,16 +180,28 @@ public class Units extends JComponent {
             shape.ypoints[k] = (int) (zoom*originalYPoints[k]);
         }
         shape.invalidate();
-
-        rect = new Rectangle(getX(), getY(), getImage().getWidth(), getImage().getHeight());
     }
 
     public static Units getUnit(String className, GameCell selectedCell, Player owner) {
         switch (className) {
             case "Worker":
                 return new Worker(selectedCell, owner);
+            case "Soldier":
+                return new Soldier(selectedCell, owner);
+            case "Boat":
+                return new Boat(selectedCell, owner);
+            case "Ship":
+                return new Ship(selectedCell, owner);
             case "Town":
                 return new Town(selectedCell, owner);
+            case "Barracks":
+                return new Barracks(selectedCell, owner);
+            case "LumberCamp":
+                return new LumberCamp(selectedCell, owner);
+            case "MiningCamp":
+                return new MiningCamp(selectedCell, owner);
+            case "Seaport":
+                return new Seaport(selectedCell, owner);
             case "Bush":
                 return new Bush(selectedCell, null);
             case "BigFish":
@@ -174,7 +219,7 @@ public class Units extends JComponent {
         return null;
     }
 
-    public static void addUnit(Units unit) {
+    public static synchronized void addUnit(Units unit) {
         if (units.size() != 0) {
             double y = unit.getShape().ypoints[0];
             for (int i = units.size() - 1; i >= 0; i--) {
@@ -189,6 +234,10 @@ public class Units extends JComponent {
             units.addElement(unit);
     }
 
+    private static synchronized void removeUnit(Units unit) {
+        units.removeElement(unit);
+    }
+
     public static Vector<Units> getUnits() {
         return units;
     }
@@ -197,8 +246,70 @@ public class Units extends JComponent {
         Units.units = units;
     }
 
-    public Rectangle getRect() {
-        return rect;
+    public Player getOwner() {
+        return null;
+    }
+
+    protected boolean findWay() {
+        return true;
+    }
+
+    protected void findJob() {}
+
+    protected int findCellI(int x, int y, int first, int last) {
+        if(last - first == 1)
+            return first;
+        int temp = (first + last)/2;
+        if(y <= -x/2 + temp*Addresses.board.originalHeight)
+            return findCellI(x, y, first, temp);
+        else
+            return findCellI(x, y, temp, last);
+    }
+
+    protected int findCellJ(int x, int y, int first, int last) {
+        if(last - first == 1)
+            return first;
+        int temp = (first + last)/2;
+        if(y <= x/2 - temp*Addresses.board.originalHeight)
+            return findCellJ(x, y, temp, last);
+        else
+            return findCellJ(x, y, first, temp);
+    }
+
+    protected void reArrange() {
+        removeUnit(this);
+        addUnit(this);
+    }
+
+    public int getUnitSize() {
+        return size;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public int getHealthCapacity() {
+        return healthCapacity;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    protected void death() {
+        alive = false;
+        imageNumber = 0;
+
+        Addresses.board.dispatchEvent(new GameEvent(this, Events.clearSelection));
+    }
+
+    public Vector<Terrain> getAbandonTerrains() {
+        return abandonTerrains;
+    }
+
+    public SingleSelect getStatsPanel() {
+        return statsPanel;
     }
 
     @Override
@@ -207,7 +318,9 @@ public class Units extends JComponent {
 
         switch (e.getID()) {
             case Events.zoom:
-                zoom();
+                synchronized (this) {
+                    zoom();
+                }
                 break;
             case Events.setKind:
             case Events.setKindStack:
@@ -215,6 +328,19 @@ public class Units extends JComponent {
                 break;
             case Events.clearKind:
                 Units.units.removeElement(this);
+                break;
+            case Events.order:
+                findJob();
+                findWay();
+                break;
+            case Events.unitSelect:
+                color = Color.WHITE;
+                break;
+            case Events.unitDeselect:
+                color = originalColor;
+                break;
+            case Events.death:
+                death();
                 break;
         }
     }

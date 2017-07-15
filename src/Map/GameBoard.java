@@ -2,12 +2,15 @@ package Map;
 
 import Addresses.Addresses;
 import GameEvent.*;
+import GameFrame.Frame;
 import Player.Player;
 import Season.Season;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created by Saeed on 6/5/2017.
@@ -27,9 +30,19 @@ public class GameBoard extends JPanel implements Runnable, MouseListener, MouseM
     protected boolean zoomChanged = true;
     protected Player[] players;
     protected Player currentPlayer;
+    protected Object kind;
+    protected transient BufferedImage kindImage;
+    protected int kindXHint;
+    protected int kindYHint;
 
     public GameBoard(LayoutManager layout, boolean isDoubleBuffered) {
         super(layout, isDoubleBuffered);
+
+        addMouseListener(this);
+        addMouseMotionListener(this);
+        addMouseWheelListener(this);
+
+        setBackground(Color.BLACK);
 
         Addresses.board = this;
     }
@@ -53,6 +66,14 @@ public class GameBoard extends JPanel implements Runnable, MouseListener, MouseM
         this.zoomChanged = zoomChanged;
         this.players = players;
         this.currentPlayer = currentPlayer;
+
+        addMouseListener(this);
+        addMouseMotionListener(this);
+        addMouseWheelListener(this);
+
+        setBackground(Color.BLACK);
+
+        Addresses.board = this;
     }
 
     @Override
@@ -80,7 +101,15 @@ public class GameBoard extends JPanel implements Runnable, MouseListener, MouseM
     public void mouseExited(MouseEvent e) {}
 
     @Override
-    public void mouseDragged(MouseEvent e) {}
+    public void mouseDragged(MouseEvent e) {
+        Addresses.panel.mouseX = e.getX();
+        Addresses.panel.mouseY = e.getY() + getY();
+
+        if (!isThreadRunning && (Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1 || Addresses.panel.mouseY == 0 || Addresses.panel.mouseY == Frame.height - 1)) {
+            isThreadRunning = true;
+            new Thread(this).start();
+        }
+    }
 
     @Override
     public void mouseMoved(MouseEvent e) {
@@ -117,15 +146,27 @@ public class GameBoard extends JPanel implements Runnable, MouseListener, MouseM
         height = (int) (zoom*originalHeight);
 
         Addresses.hud.dispatchEvent(new GameEvent(this, Events.zoom));
+
+        try {
+            for (Class unitClass : Addresses.unitsClass)
+                unitClass.getMethod("setStaticHints").invoke(null);
+
+            if (kind != null && kind instanceof Class) {
+                kindXHint = (int) ((Class) kind).getField("staticXHint").get(null);
+                kindYHint = (int) ((Class) kind).getField("staticYHint").get(null);
+            }
+        } catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException | InvocationTargetException e1) {
+            e1.printStackTrace();
+        }
     }
 
     @Override
     public synchronized void run() {
-        while((Addresses.panel.mouseY == 0 || Addresses.panel.mouseY == Addresses.frame.height - 1 || Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1) && yo > -mapSize*height/2 + getHeight() && xo > -mapSize*width + getWidth()) {
+        while(Addresses.panel.mouseY == 0 || Addresses.panel.mouseY == Frame.height - 1 || Addresses.panel.mouseX == 0 || Addresses.panel.mouseX == getWidth() - 1) {
             if(Addresses.panel.mouseY == 0 && yo < mapSize*height/2) {
                 yo += zoom*48;
                 originalYo += 48;
-            } else if(Addresses.panel.mouseY == Addresses.frame.height - 1 && yo > -mapSize*height/2 + getHeight()) {
+            } else if(Addresses.panel.mouseY == Frame.height - 1 && yo > -mapSize*height/2 + getHeight()) {
                 yo -= zoom*48;
                 originalYo -= 48;
             } else if(Addresses.panel.mouseX == 0 && xo < 0) {

@@ -1,4 +1,4 @@
-package mainMenu;
+package mainMenu.MenuPanels.SinglePlayer;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,10 +8,14 @@ import java.awt.event.ComponentEvent;
 import javax.swing.*;
 
 import Addresses.Addresses;
+import Game.MainFrame.MainFrame;
 import GameEvent.Events;
 import GameFrame.Frame;
-import MapEditor.HUD.MiniMap.MiniMap;
+import GameHUD.MiniMap.MiniMap;
 import MapEditor.MenuBar.Menu.FileChooser;
+import mainMenu.MenuButton.MyButton;
+import mainMenu.ForPanel;
+import mainMenu.MenuPanels.Main.ButPanel;
 
 public class SinglePanel extends ForPanel implements ActionListener {
 
@@ -49,13 +53,24 @@ public class SinglePanel extends ForPanel implements ActionListener {
 
         if (source.equals(findmap)) {
             FileChooser fileChooser = new FileChooser("resources\\maps\\saves");
-            fileChooser.addActionListener(this);
             fileChooser.showOpenDialog(this);
         } else if(source.equals(back)) {
             Addresses.frame.getContentPane().add(new ButPanel());
             Addresses.frame.getContentPane().remove(this);
             Addresses.frame.repaint();
-        } else if (source instanceof FileChooser && e.getActionCommand().equals(FileChooser.APPROVE_SELECTION)) {
+        } else if (source.equals(play)) {
+            new MainFrame();
+            Addresses.frame.revalidate();
+        }
+	}
+
+	@Override
+	protected void processComponentEvent(ComponentEvent e) {
+		super.processComponentEvent(e);
+
+		if(e.getID() == Events.load) {
+            minimap.dispatchEvent(e);
+
             JLabel label = new JLabel("This map needs " + Addresses.board.getPlayers().length + " player!");
             label.setSize(wid,high);
             label.setLocation(Frame.width/8, findmap.getY() + high);
@@ -72,14 +87,6 @@ public class SinglePanel extends ForPanel implements ActionListener {
 
             Addresses.frame.repaint();
         }
-	}
-
-	@Override
-	protected void processComponentEvent(ComponentEvent e) {
-		super.processComponentEvent(e);
-
-		if(e.getID() == Events.load)
-			minimap.dispatchEvent(e);
 	}
 
 }

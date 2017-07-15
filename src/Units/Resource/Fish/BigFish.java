@@ -27,7 +27,7 @@ public class BigFish extends Resource {
     public static int staticYHint = 205;
 
     static {
-        File[] files = new File("resources\\images\\fish\\big\\editor").listFiles();
+        File[] files = new File("resources\\images\\fish\\big").listFiles();
         images = new BufferedImage[files.length];
         try {
             for (int i = 0; i < files.length; i++)
@@ -40,29 +40,54 @@ public class BigFish extends Resource {
     public BigFish(GameCell cell, Player owner) {
         super(cell, owner, 1);
 
-        abandonTerrains = new Vector<>(Arrays.asList(Terrain.Dessert, Terrain.Grass, Terrain.Ice, Terrain.Snow));
+        originalColor = new Color(255, 50, 55);
+        color = originalColor;
+
+        abandonTerrains = new Vector<>(Arrays.asList(Terrain.Dessert, Terrain.Grass, Terrain.Ice, Terrain.Snow, Terrain.Water));
 
         originalXHint = 269;
         originalYHint = 205;
 
         xHint = (int) (Addresses.board.zoom*originalXHint);
         yHint = (int) (Addresses.board.zoom*originalYHint);
-
-        rect = new Rectangle(getX(), getY(), getImage().getWidth(), getImage().getHeight());
     }
 
     @Override
     public BufferedImage getEditorImage(Season season) {
-        return images[0];
+        return images[7];
     }
 
     public static BufferedImage getStaticEditorImage(Season season) {
-        return images[0];
+        return images[7];
     }
 
     public static void setStaticHints() {
         staticXHint = (int) (Addresses.board.zoom*staticOriginalXHint);
         staticYHint = (int) (Addresses.board.zoom*staticOriginalYHint);
+    }
+
+    @Override
+    public BufferedImage getImage() {
+        if (Addresses.board.season != Season.Winter) {
+            BufferedImage image = images[imageNumber/2];
+            imageNumber++;
+            if (imageNumber/2 == 51) {
+                originalXHint = 34;
+                originalYHint = (int) 80.5;
+                xHint = (int) (Addresses.board.zoom*34);
+                yHint = (int) (Addresses.board.zoom*80.5);
+            } else if(imageNumber/2 == 100) {
+                imageNumber = 0;
+
+                originalXHint = staticOriginalXHint;
+                originalYHint = staticOriginalYHint;
+                xHint = (int) (Addresses.board.zoom*staticOriginalXHint);
+                yHint = (int) (Addresses.board.zoom*staticOriginalYHint);
+            }
+            return image;
+        }
+
+        return null;
     }
 
 }

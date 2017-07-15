@@ -13,7 +13,7 @@ import java.awt.event.ComponentEvent;
 /**
  * Created by Saeed on 5/19/2017.
  */
-public class ActionSection extends JPanel {
+public class ActionSection extends GameHUD.ActionSection.ActionSection {
 
     private Map map = new Map(null);
     private Player player = new Player(null);
@@ -21,10 +21,6 @@ public class ActionSection extends JPanel {
 
     public ActionSection(LayoutManager layout) {
         super(layout);
-        setOpaque(false);
-
-        setSize(271, 173);
-        setLocation(34, 27);
     }
 
     @Override
@@ -47,14 +43,10 @@ public class ActionSection extends JPanel {
                     add(player);
                     break;
             }
-        } else if (e.getID() == Events.actionOff)
-            removeAll();
-        else if (e.getID() == Events.clearSelection)
+        } else if (e.getID() == Events.clearSelection)
             units.dispatchEvent(e);
         else if (e.getID() == Events.boardCreated)
             player.dispatchEvent(e);
-
-//        Addresses.panel.repaint();
     }
 
 }

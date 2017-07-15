@@ -6,6 +6,7 @@ import GameEvent.Events;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
@@ -15,6 +16,7 @@ import java.awt.event.MouseMotionListener;
 public class Panel extends JPanel implements MouseMotionListener, Runnable {
 
     public int mouseX, mouseY;
+    protected boolean active = true;
 
     public Panel(LayoutManager layout) {
         super(layout);
@@ -30,9 +32,13 @@ public class Panel extends JPanel implements MouseMotionListener, Runnable {
 
     public Panel() {}
 
+    public boolean isActive() {
+        return active;
+    }
+
     @Override
     public void run() {
-        while (true) {
+        while (active) {
             repaint();
 
             try {
@@ -55,4 +61,14 @@ public class Panel extends JPanel implements MouseMotionListener, Runnable {
     @Override
     public void mouseDragged(MouseEvent e) {}
 
+    @Override
+    protected void processComponentEvent(ComponentEvent e) {
+        super.processComponentEvent(e);
+
+        switch (e.getID()) {
+            case Events.shutdown:
+                active = false;
+                break;
+        }
+    }
 }

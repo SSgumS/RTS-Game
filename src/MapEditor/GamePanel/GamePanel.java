@@ -50,8 +50,7 @@ public class GamePanel extends GameFrame.Panel {
     }
 
     private void addHUD() {
-        hud = new HUD(null);
-        Addresses.hud = hud;
+        hud = new HUD(null, true);
         add(hud);
     }
 
